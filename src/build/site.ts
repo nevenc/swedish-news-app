@@ -13,7 +13,7 @@ export async function buildSite(opts: { publicDir: string; appRoot: string }): P
 
   await mkdir(join(opts.publicDir, "assets"), { recursive: true });
   await copyFile(
-    join(opts.appRoot, "assets", "logo", "mark-a-headlines.svg"),
+    join(opts.appRoot, "assets", "logo", "mark.svg"),
     join(opts.publicDir, "assets", "logo.svg"),
   );
   written.push("assets/logo.svg");

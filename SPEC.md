@@ -297,6 +297,10 @@ Reference: NewsNow's Sweden page (newsnow.co.uk/h/World+News/Europe/Northern+Eur
 - **Auto-refresh:** the page re-fetches `latest.json` every 5 minutes and prepends new rows; a "Refresh" control forces it.
 - **Day pages** (`/day/2026-11-14`) remain for the archive and for the daily feed, rendered from `days/YYYY-MM-DD.json`.
 
+### Brand
+
+Logo chosen 2026-11-14: a blue rounded tile (Swedish flag blue, Pantone 301, `#006AA7`) with three yellow (Pantone 116, `#FECC02`) bars of decreasing length, reading as a stack of headlines. Wordmark is lowercase `swedlines` in Manrope ExtraBold. Sources in `assets/logo/` (`mark.svg`, `lockup.svg`); the site header pairs the mark with a yellow ticker line.
+
 ### Implementation
 
 Static HTML plus a small amount of vanilla JS that reads `/api/v1/latest.json` and the category/source files. Rendered at build time for first paint, hydrated by the client for refresh and filters. No framework in the MVP.

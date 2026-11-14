@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 330 64" width="330" height="64" role="img" aria-label="Swedlines">
+  <!-- Mark: three headline bars on a blue tile. Wordmark relies on Manrope; convert to outlines for print. -->
+  <rect width="64" height="64" rx="14" fill="#006AA7"/>
+  <rect x="14" y="17" width="36" height="8" rx="4" fill="#FECC02"/>
+  <rect x="14" y="28" width="26" height="8" rx="4" fill="#FECC02"/>
+  <rect x="14" y="39" width="18" height="8" rx="4" fill="#FECC02"/>
+  <text x="80" y="47" font-family="Manrope, 'Helvetica Neue', Arial, sans-serif" font-weight="800" font-size="46" letter-spacing="-2" fill="#006AA7">swedlines</text>
+</svg>
