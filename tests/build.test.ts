@@ -31,7 +31,7 @@ describe("buildApi + buildSite", () => {
     };
     const store = new ContentStore(root);
     const report = await ingest({ config, store, fetchFn, now: () => FIXED_NOW });
-    const publicDir = join(root, "public");
+    const publicDir = join(root, "docs");
     const result = await buildApi({ store, config, publicDir, now: FIXED_NOW });
     expect(result.articles).toBe(report.written);
 

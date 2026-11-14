@@ -41,9 +41,9 @@ Commands:
     --in <file...>     One or more JSON files
     --provider <name>  Provenance (default: claude-code)
     --model <id>       Provenance (default: claude-fable-5-1)
-  build              Generate public/ (static API + site) from the content repo
+  build              Generate docs/ (static API + site) from the content repo
     --content <dir>    Path to the content repo checkout (default: content-repo)
-  serve              Serve <content>/public locally for preview
+  serve              Serve <content>/docs locally for preview
     --port <n>         Port (default: 8787)
 `;
 
@@ -228,7 +228,7 @@ async function buildCommand(args: string[]): Promise<number> {
   });
   const config = await loadSources(values.file);
   const store = new ContentStore(values.content);
-  const publicDir = join(values.content, "public");
+  const publicDir = join(values.content, "docs");
   const api = await buildApi({ store, config, publicDir });
   const site = await buildSite({ publicDir, appRoot: process.cwd() });
   console.log(
@@ -245,8 +245,8 @@ async function serveCommand(args: string[]): Promise<number> {
       port: { type: "string", default: "8787" },
     },
   });
-  const port = await serveStatic(join(values.content, "public"), Number(values.port));
-  console.log(`serving ${join(values.content, "public")} at http://localhost:${port}/`);
+  const port = await serveStatic(join(values.content, "docs"), Number(values.port));
+  console.log(`serving ${join(values.content, "docs")} at http://localhost:${port}/`);
   return new Promise(() => {}); // run until killed
 }
 

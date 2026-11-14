@@ -17,7 +17,7 @@ npm install
 git clone git@github.com:nevenc/swedlines-content.git content-repo   # the data repo, gitignored here
 
 npm run cli -- ingest        # fetch all ten feeds, write new items into content-repo/content/
-npm run cli -- build         # generate content-repo/public/ (JSON API + stream page)
+npm run cli -- build         # generate content-repo/docs/ (JSON API + stream page)
 npm run cli -- serve         # http://localhost:8787/
 ```
 

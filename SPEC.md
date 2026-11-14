@@ -111,7 +111,7 @@ Sources are configured in `sources.yaml` (one entry per publisher, one or more f
 | Repo | Contents | Commit cadence |
 |---|---|---|
 | `swedish-news-app` (this repo) | pipeline code, API/feed builders, optional UI, tests, this spec | on development |
-| `swedish-news-content` | `sources.yaml` snapshot, `content/` item files, generated `public/` | every pipeline run with new items (up to every 15 min) |
+| `swedish-news-content` | `sources.yaml` snapshot, `content/` item files, generated `docs/` | every pipeline run with new items (up to every 15 min) |
 
 Keeping data in a separate repo prevents thousands of data commits from swamping the code history, and lets the content repo be published via GitHub Pages independently. (Alternative: an orphan `data` branch in this repo. See Open decisions.)
 
@@ -332,7 +332,7 @@ NewsNow ranks "Top" editorially/algorithmically. The cheapest honest signal avai
 
 - **Repos must be public.** 96 runs/day ≈ 6,000 Actions minutes/month, three times the free allowance for private repos (~$32/month overage). Public repos get unlimited minutes, and the content is public by design.
 - **Scheduler:** GitHub Actions cron every 15 minutes (a headline stream needs sub-hour freshness; Actions cron is best-effort and often runs a few minutes late, which is acceptable). ~96 runs and up to ~96 content commits per day; LLM cost scales with new items, not runs. A separate nightly job at 04:00 Stockholm rebuilds the previous day's edition and all feeds from scratch to catch late items and translation retries.
-- **Hosting and DNS:** GitHub Pages serves the content repo's `public/` at `https://swedlines.com` (branch `main`, folder `/public`, with a `.nojekyll` file). Soft limits: 100 GB/month bandwidth and 10 deploys/hour; four deploys/hour is within limits. Put Cloudflare's free tier in front once ticker polling approaches ~1,000 daily viewers. The build writes a `CNAME` file containing `swedlines.com` into `public/` on every run (Pages removes the custom domain if the file disappears). DNS: apex `A` records to GitHub Pages' four IPs plus `www` as a `CNAME` to `<owner>.github.io`, with `www` redirecting to the apex. Enforce HTTPS in the Pages settings once the certificate is issued. As of 2026-11-14 the domain has no DNS records yet.
+- **Hosting and DNS:** GitHub Pages serves the content repo's `docs/` at `https://swedlines.com` (branch `main`, folder `/docs`, with a `.nojekyll` file). Soft limits: 100 GB/month bandwidth and 10 deploys/hour; four deploys/hour is within limits. Put Cloudflare's free tier in front once ticker polling approaches ~1,000 daily viewers. The build writes a `CNAME` file containing `swedlines.com` into `docs/` on every run (Pages removes the custom domain if the file disappears). DNS: apex `A` records to GitHub Pages' four IPs plus `www` as a `CNAME` to `<owner>.github.io`, with `www` redirecting to the apex. Enforce HTTPS in the Pages settings once the certificate is issued. As of 2026-11-14 the domain has no DNS records yet.
 - **Secrets:** `ANTHROPIC_API_KEY` and a deploy token for the content repo, stored as Actions secrets.
 - **Observability:** `status.json` is the health check. Each run writes a one-line summary to the commit message and the Actions log. A run that fetches zero items from every source fails loudly (exit non-zero) so Actions sends an email.
 - **Rate limits:** Max one request per feed per run; respect `Retry-After`. LLM calls use SDK retries with backoff.
