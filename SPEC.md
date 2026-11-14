@@ -1,7 +1,7 @@
-# Swedish News Aggregator — Specification
+# Swedlines — Specification
 
-**Status:** Draft v0.4 (2026-11-14) — sources verified, headline-stream UI and ticker added
-**Working name:** `swedish-news-app` (public name TBD)
+**Status:** Draft v0.5 (2026-11-14) — sources verified, headline-stream UI and ticker added, domain swedlines.com
+**Name:** Swedlines — https://swedlines.com (repo: `swedish-news-app`)
 
 ## 1. Purpose
 
@@ -78,7 +78,7 @@ Sources are configured in `sources.yaml` (one entry per publisher, one or more f
 - Store and republish **title, a short teaser (target ≤ 300 characters, hard cap 500), link, publisher, timestamp, and optional image URL** only. Never store full article text.
 - Swedish copyright law and the EU DSM Directive (Art. 15, press publishers' right) exempt hyperlinks and "very short extracts". Keep extracts short and always link to the original.
 - Translations and summaries are derivative works of the teaser; keep them equally short and label them as machine-generated.
-- Honor `robots.txt`, feed `ttl`, and conditional requests (`ETag` / `If-Modified-Since`). Identify with a descriptive `User-Agent` including a contact URL.
+- Honor `robots.txt`, feed `ttl`, and conditional requests (`ETag` / `If-Modified-Since`). Identify with the `User-Agent` `swedlines/<version> (+https://swedlines.com)`; the site must carry a contact address for publishers.
 - If a publisher asks to be removed, disabling the source and purging its items must be a one-line config change plus one pipeline run.
 
 ## 4. Architecture
@@ -219,7 +219,7 @@ Feeds often provide their own section names; `sources.yaml` may map those to thi
 
 ## 6. Public API (v1)
 
-Base path: `/api/v1/`. All responses are JSON, UTF-8, `Cache-Control: public, max-age=300`, CORS `*`. Static files; every endpoint below is a path, not a query.
+Base URL: `https://swedlines.com/api/v1/`. All responses are JSON, UTF-8, `Cache-Control: public, max-age=300`, CORS `*`. Static files; every endpoint below is a path, not a query.
 
 | Path | Content |
 |---|---|
@@ -263,6 +263,8 @@ It reads the same files, so static and dynamic answers never disagree. Deployabl
 | Path | Format | Content |
 |---|---|---|
 | `/feeds/sv.xml` | RSS 2.0 | All items, Swedish |
+
+All feed paths are relative to `https://swedlines.com`.
 | `/feeds/en.xml` | RSS 2.0 | All items, English |
 | `/feeds/sv.atom`, `/feeds/en.atom` | Atom 1.0 | Same |
 | `/feeds/sv.json`, `/feeds/en.json` | JSON Feed 1.1 | Same |
@@ -275,7 +277,7 @@ Feed rules:
 - Each entry's `<link>` points to the **original publisher URL**, not to this site.
 - `<guid>` is the item `id`, `isPermaLink="false"`.
 - `<language>` / `xml:lang` set correctly per feed.
-- English entries append a one-line footer: "Machine translation of an article from {publisher}. Original (Swedish): {url}".
+- English entries append a one-line footer: "Machine translation by Swedlines of an article from {publisher}. Original (Swedish): {url}".
 - Feeds contain the latest 100 items; the daily feed contains the latest 30 days.
 - Validate against the W3C feed validator in CI.
 
@@ -303,8 +305,8 @@ Static HTML plus a small amount of vanilla JS that reads `/api/v1/latest.json` a
 
 A scrolling headline ticker, the classic broadcast-style bar, as a standalone page and an embeddable widget. Headlines only, so the payload is tiny and the client is trivial.
 
-- **`/ticker`** — full-width page: one horizontally scrolling line of headlines with publisher tag; click goes to the publisher. Controls: language (`sv` / `en` / alternate every pass), speed, pause on hover, category filter. Suited to a second monitor, a wall display, or a browser tab.
-- **Embeddable widget** — `<script src="https://<host>/ticker.js" data-lang="en" data-category="politics"></script>` renders the same bar inside any site. Also an `<iframe>` variant for hosts that block scripts. Styles are scoped so the host page is untouched.
+- **`https://swedlines.com/ticker`** — full-width page: one horizontally scrolling line of headlines with publisher tag; click goes to the publisher. Controls: language (`sv` / `en` / alternate every pass), speed, pause on hover, category filter. Suited to a second monitor, a wall display, or a browser tab.
+- **Embeddable widget** — `<script src="https://swedlines.com/ticker.js" data-lang="en" data-category="politics"></script>` renders the same bar inside any site. Also an `<iframe>` variant for hosts that block scripts. Styles are scoped so the host page is untouched.
 - **Daily mode** — the ticker loops the current day's edition (`days/YYYY-MM-DD.json`) instead of the live stream, so a display shows "today's headlines in Sweden" end to end.
 - **Native ticker apps** (phase 2 candidates, all consumers of the same endpoint): a macOS menu-bar app, a Windows taskbar widget, a Raspberry Pi/LED-matrix display, a Slack/Discord bot posting the daily edition.
 
@@ -325,6 +327,7 @@ NewsNow ranks "Top" editorially/algorithmically. The cheapest honest signal avai
 ## 9. Operations
 
 - **Scheduler:** GitHub Actions cron every 15 minutes (a headline stream needs sub-hour freshness; Actions cron is best-effort and often runs a few minutes late, which is acceptable). ~96 runs and up to ~96 content commits per day; LLM cost scales with new items, not runs. A separate nightly job at 04:00 Stockholm rebuilds the previous day's edition and all feeds from scratch to catch late items and translation retries.
+- **Hosting and DNS:** GitHub Pages serves the content repo's `public/` at `https://swedlines.com`. The build writes a `CNAME` file containing `swedlines.com` into `public/` on every run (Pages removes the custom domain if the file disappears). DNS: apex `A` records to GitHub Pages' four IPs plus `www` as a `CNAME` to `<owner>.github.io`, with `www` redirecting to the apex. Enforce HTTPS in the Pages settings once the certificate is issued. As of 2026-11-14 the domain has no DNS records yet.
 - **Secrets:** `ANTHROPIC_API_KEY` and a deploy token for the content repo, stored as Actions secrets.
 - **Observability:** `status.json` is the health check. Each run writes a one-line summary to the commit message and the Actions log. A run that fetches zero items from every source fails loudly (exit non-zero) so Actions sends an email.
 - **Rate limits:** Max one request per feed per run; respect `Retry-After`. LLM calls use SDK retries with backoff.
@@ -361,6 +364,6 @@ These change the implementation materially and need an owner's call before Miles
 4. **Translation model.** `claude-opus-5-5` for quality vs `claude-haiku-5-5` for ~40× lower cost (§4.4). Suggest starting with Opus for a week, sampling quality, then deciding.
 5. **Source list.** Resolved 2026-11-14: ten verified sources in §3 and `sources.yaml`; Omni (no feed) and The Local (English) excluded. Confirm whether Di belongs in a general-news feed.
 6. **Extract length.** 300-character target is conservative. Confirm you are comfortable with that given the press-publisher-right constraints in §3.
-7. **Hosting.** GitHub Pages is assumed (free, fits static-first). Cloudflare Pages or Netlify work identically.
+7. **Hosting.** Resolved 2026-11-14: GitHub Pages behind the custom domain `swedlines.com` (§9). Cloudflare in front is optional and can be added later for caching and analytics without changing the build.
 8. **Web UI.** Resolved 2026-11-14: a NewsNow-style headline stream is in the MVP (§8). Open sub-question: should rows show the teaser by default or only on expand?
 9. **Data licence for API consumers.** Titles and teasers remain the publishers' copyright; our translations and metadata could be CC BY 4.0. Needs a decision and a `LICENSE-DATA` file.

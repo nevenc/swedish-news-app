@@ -4,7 +4,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## What this is
 
-A dual-language (Swedish original + English translation) aggregator of Swedish news headlines. `SPEC.md` is the authoritative design document; read it before making architectural changes. `sources.yaml` is the verified list of publisher feeds.
+Swedlines (https://swedlines.com): a dual-language (Swedish original + English translation) aggregator of Swedish news headlines. `SPEC.md` is the authoritative design document; read it before making architectural changes. `sources.yaml` is the verified list of publisher feeds.
 
 ## Commands
 

@@ -5,7 +5,7 @@
 defaults:
   language: sv
   max_summary_chars: 300
-  user_agent: "swedish-news-app/0.1 (+https://github.com/nevenc/swedish-news-app)"
+  user_agent: "swedlines/0.1 (+https://swedlines.com)"
 
 sources:
   - key: svt

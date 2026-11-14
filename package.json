@@ -1,8 +1,9 @@
 {
-  "name": "swedish-news-app",
+  "name": "swedlines",
   "version": "0.1.0",
   "private": true,
-  "description": "Dual-language (sv/en) aggregator of Swedish news headlines with a static JSON API, RSS feeds, and a ticker.",
+  "description": "Swedlines (swedlines.com): dual-language (sv/en) aggregator of Swedish news headlines with a static JSON API, RSS feeds, a headline stream, and a ticker.",
+  "homepage": "https://swedlines.com",
   "type": "module",
   "engines": {
     "node": ">=24"
