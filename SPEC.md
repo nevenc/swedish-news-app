@@ -98,7 +98,7 @@ Sources are configured in `sources.yaml` (one entry per publisher, one or more f
                                  │ build step
                                  ▼
                  ┌─────────────────────────────────────────────┐
-                 │  Static output (public/)                    │
+                 │  Static output (docs/)                      │
                  │  /api/v1/*.json   /feeds/*.xml   /index.html │
                  └───────────────┬─────────────────────────────┘
                                  │ deploy (GitHub Pages / any CDN)
@@ -332,11 +332,11 @@ NewsNow ranks "Top" editorially/algorithmically. The cheapest honest signal avai
 
 - **Repos must be public.** 96 runs/day ≈ 6,000 Actions minutes/month, three times the free allowance for private repos (~$32/month overage). Public repos get unlimited minutes, and the content is public by design.
 - **Scheduler:** GitHub Actions cron every 15 minutes (a headline stream needs sub-hour freshness; Actions cron is best-effort and often runs a few minutes late, which is acceptable). ~96 runs and up to ~96 content commits per day; LLM cost scales with new items, not runs. A separate nightly job at 04:00 Stockholm rebuilds the previous day's edition and all feeds from scratch to catch late items and translation retries.
-- **Hosting and DNS:** GitHub Pages serves the content repo's `docs/` at `https://swedlines.com` (branch `main`, folder `/docs`, with a `.nojekyll` file). Soft limits: 100 GB/month bandwidth and 10 deploys/hour; four deploys/hour is within limits. Put Cloudflare's free tier in front once ticker polling approaches ~1,000 daily viewers. The build writes a `CNAME` file containing `swedlines.com` into `docs/` on every run (Pages removes the custom domain if the file disappears). DNS: apex `A` records to GitHub Pages' four IPs plus `www` as a `CNAME` to `<owner>.github.io`, with `www` redirecting to the apex. Enforce HTTPS in the Pages settings once the certificate is issued. As of 2026-11-14 the domain has no DNS records yet.
+- **Hosting and DNS:** GitHub Pages serves the content repo's `docs/` at `https://swedlines.com` (branch `main`, folder `/docs`, with a `.nojekyll` file). Live since 2026-11-14 at https://nevenc.github.io/swedlines-content/ pending DNS. GitHub Pages branch deployment only allows the root or `/docs` as the folder, which is why the output folder is `docs/`. Soft limits: 100 GB/month bandwidth and 10 deploys/hour; four deploys/hour is within limits. Put Cloudflare's free tier in front once ticker polling approaches ~1,000 daily viewers. The build writes a `CNAME` file containing `swedlines.com` into `docs/` on every run (Pages removes the custom domain if the file disappears). DNS: apex `A` records to GitHub Pages' four IPs plus `www` as a `CNAME` to `<owner>.github.io`, with `www` redirecting to the apex. Enforce HTTPS in the Pages settings once the certificate is issued. As of 2026-11-14 the domain has no DNS records yet.
 - **Secrets:** `ANTHROPIC_API_KEY` and a deploy token for the content repo, stored as Actions secrets.
 - **Observability:** `status.json` is the health check. Each run writes a one-line summary to the commit message and the Actions log. A run that fetches zero items from every source fails loudly (exit non-zero) so Actions sends an email.
 - **Rate limits:** Max one request per feed per run; respect `Retry-After`. LLM calls use SDK retries with backoff.
-- **Retention:** Keep everything (text is tiny). Reconsider if the content repo exceeds ~1 GB; options are yearly archive repos or pruning `public/` from history.
+- **Retention:** Keep everything (text is tiny). Reconsider if the content repo exceeds ~1 GB; options are yearly archive repos or pruning `docs/` from history.
 - **Cost ceiling:** Alert if a single run makes more than N LLM calls (configurable, default 1000) to catch feed loops.
 
 ## 10. Testing
@@ -344,7 +344,7 @@ NewsNow ranks "Top" editorially/algorithmically. The cheapest honest signal avai
 - **Unit:** normalization (URL canonicalization, HTML stripping, timezone handling), `id` derivation, dedupe, category mapping, feed/JSON serialization.
 - **Fixtures:** Recorded feed responses per source under `tests/fixtures/`; tests run fully offline. LLM calls are mocked by default; a tagged integration test hits the real API with a tiny sample.
 - **Contract:** Generated API output is validated against `openapi.json`; feeds against the W3C validator (or a local equivalent) in CI.
-- **Golden run:** A fixture-driven end-to-end run must produce byte-identical `public/` output across two executions (idempotency check).
+- **Golden run:** A fixture-driven end-to-end run must produce byte-identical `docs/` output across two executions (idempotency check).
 
 ## 11. Milestones
 
