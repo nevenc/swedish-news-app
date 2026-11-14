@@ -1,0 +1,144 @@
+# News sources for the Swedish news aggregator.
+# All feeds verified live on 2026-11-14. Re-verify before enabling in production.
+# Fields: see SPEC.md §3. `tier` is informational (1 = national core, 2 = business/regional).
+
+defaults:
+  language: sv
+  max_summary_chars: 300
+  user_agent: "swedish-news-app/0.1 (+https://github.com/nevenc/swedish-news-app)"
+
+sources:
+  - key: svt
+    name: SVT Nyheter
+    homepage: https://www.svt.se/nyheter
+    tier: 1
+    enabled: true
+    paywall: none
+    feeds:
+      - url: https://www.svt.se/rss.xml
+        category: general
+        # Section feeds also exist, e.g. /nyheter/inrikes/rss.xml, /nyheter/utrikes/rss.xml
+    notes: "RSS 2.0, ~100 items, clean one-sentence descriptions. Public service, no paywall."
+
+  - key: sr
+    name: Sveriges Radio Ekot
+    homepage: https://sverigesradio.se/ekot
+    tier: 1
+    enabled: true
+    paywall: none
+    feeds:
+      - url: https://api.sr.se/api/rss/program/83
+        category: general
+    notes: >-
+      Atom 1.0 via api.sr.se, 20 items. <summary> is HTML (bulleted paragraphs) and often
+      exceeds 300 chars; needs HTML stripping and LLM shortening. Public service, no paywall.
+
+  - key: dn
+    name: Dagens Nyheter
+    homepage: https://www.dn.se
+    tier: 1
+    enabled: true
+    paywall: hard
+    feeds:
+      - url: https://www.dn.se/rss/
+        category: general
+    notes: "RSS 2.0, ~120 items, teaser descriptions. Mixes news with columns/opinion."
+
+  - key: svd
+    name: Svenska Dagbladet
+    homepage: https://www.svd.se
+    tier: 1
+    enabled: true
+    paywall: hard
+    feeds:
+      - url: https://www.svd.se/feed/articles.rss
+        category: general
+    notes: "RSS 2.0, ~40 items. Some items have no description; teasers end with an ellipsis."
+
+  - key: aftonbladet
+    name: Aftonbladet
+    homepage: https://www.aftonbladet.se
+    tier: 1
+    enabled: true
+    paywall: partial   # Plus-articles
+    feeds:
+      - url: https://rss.aftonbladet.se/rss2/small/pages/sections/senastenytt/
+        category: general
+    notes: >-
+      RSS 2.0, ~40 items, includes <enclosure> image. Links carry ?utm_medium=rss which
+      must be stripped before hashing. Feed includes live chats and entertainment items;
+      consider filtering titles starting with "CHATT:".
+
+  - key: expressen
+    name: Expressen
+    homepage: https://www.expressen.se
+    tier: 1
+    enabled: true
+    paywall: partial   # Premium
+    feeds:
+      - url: https://feeds.expressen.se/nyheter/
+        category: general
+    notes: "RSS 2.0, 20 items, HTML <p> teasers in CDATA. Has <author>."
+
+  - key: tv4
+    name: TV4 Nyheterna
+    homepage: https://www.tv4.se/nyheterna
+    tier: 1
+    enabled: true
+    paywall: none
+    feeds:
+      - url: https://www.tv4.se/rss
+        category: general
+    notes: "RSS 2.0, ~50 items, good descriptions. Largest commercial broadcaster."
+
+  - key: di
+    name: Dagens industri
+    homepage: https://www.di.se
+    tier: 2
+    enabled: true
+    paywall: hard
+    feeds:
+      - url: https://www.di.se/rss
+        category: economy
+    notes: "RSS 2.0, 20 items. Business/finance; includes stock tips that may not suit a general feed."
+
+  - key: gp
+    name: Göteborgs-Posten
+    homepage: https://www.gp.se
+    tier: 2
+    enabled: true
+    paywall: hard
+    feeds:
+      - url: https://www.gp.se/rss
+        category: general
+    notes: >-
+      RSS 2.0, only 10 items. Server returns gzip without a Content-Encoding header in some
+      cases; fetcher must sniff and decompress. Largest regional paper (west Sweden).
+
+  - key: sydsvenskan
+    name: Sydsvenskan
+    homepage: https://www.sydsvenskan.se
+    tier: 2
+    enabled: true
+    paywall: hard
+    feeds:
+      - url: https://www.sydsvenskan.se/rss.xml
+        category: general
+    notes: "RSS 2.0, ~36 items, good descriptions. Largest regional paper (south Sweden, Malmö)."
+
+  # Evaluated and excluded
+  - key: omni
+    name: Omni
+    homepage: https://omni.se
+    enabled: false
+    feeds: []
+    notes: "No public RSS feed (omni.se/rss and /feed return HTML). Also itself an aggregator."
+
+  - key: thelocal
+    name: The Local Sweden
+    homepage: https://www.thelocal.se
+    enabled: false
+    feeds:
+      - url: https://feeds.thelocal.com/rss/se
+        category: general
+    notes: "Works (20 items) but English-language; does not fit the sv-original model. Keep as reference."
