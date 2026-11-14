@@ -173,3 +173,46 @@ describe("translatePending", () => {
     ).toBe(true);
   });
 });
+
+describe("resetTranslations", () => {
+  it("marks a day's translated items pending, keeps en, and honours exceptPromptVersion", async () => {
+    const { resetTranslations } = await import("../src/pipeline/translate.ts");
+    const root = await mkdtemp(join(tmpdir(), "swedlines-reset-"));
+    try {
+      const { store } = await seeded(root, ["expressen"]);
+      await translatePending({
+        store,
+        translateBatch: fakeTranslator,
+        days: 30,
+        now: () => FIXED_NOW,
+      });
+      const all = await store.listArticles({ since: new Date(0) });
+      const day = all[0]?.published_at.slice(0, 10) ?? "";
+      const onDay = all.filter((a) => a.published_at.startsWith(day)).length;
+
+      const skippedAll = await resetTranslations({
+        store,
+        date: day,
+        exceptPromptVersion: PROMPT_VERSION,
+      });
+      expect(skippedAll).toEqual({ reset: 0, skipped: onDay });
+
+      const r = await resetTranslations({ store, date: day });
+      expect(r.reset).toBe(onDay);
+      const after = await store.listArticles({ since: new Date(0) });
+      for (const a of after.filter((x) => x.published_at.startsWith(day))) {
+        expect(a.translation.status).toBe("pending");
+        expect(a.en?.title).toMatch(/^EN: /);
+      }
+      const again = await translatePending({
+        store,
+        translateBatch: fakeTranslator,
+        days: 30,
+        now: () => FIXED_NOW,
+      });
+      expect(again.candidates).toBe(onDay);
+    } finally {
+      await rm(root, { recursive: true, force: true });
+    }
+  });
+});

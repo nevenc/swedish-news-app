@@ -273,3 +273,33 @@ export async function importTranslations(opts: {
   }
   return { applied, unknown, alreadyDone };
 }
+
+/**
+ * Mark translated items published on `date` (Stockholm, YYYY-MM-DD) as pending again so the next
+ * translate run redoes them, e.g. after a glossary change. The existing `en` text is kept until
+ * replaced, so the site never shows a gap.
+ */
+export async function resetTranslations(opts: {
+  store: ContentStore;
+  date: string;
+  /** Only reset items translated with a prompt version other than this one (default: all). */
+  exceptPromptVersion?: string | undefined;
+  dryRun?: boolean;
+}): Promise<{ reset: number; skipped: number }> {
+  const since = new Date(`${opts.date}T00:00:00+01:00`);
+  since.setDate(since.getDate() - 1); // listArticles walks by day directory; include the day before for safety
+  const all = await opts.store.listArticles({ since });
+  let reset = 0;
+  let skipped = 0;
+  for (const a of all) {
+    if (!a.published_at.startsWith(opts.date) || a.translation.status !== "done") continue;
+    if (opts.exceptPromptVersion && a.translation.prompt_version === opts.exceptPromptVersion) {
+      skipped++;
+      continue;
+    }
+    a.translation = { ...a.translation, status: "pending" };
+    if (!opts.dryRun) await opts.store.write(a);
+    reset++;
+  }
+  return { reset, skipped };
+}

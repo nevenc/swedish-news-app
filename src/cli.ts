@@ -14,6 +14,7 @@ import {
   exportPending,
   importTranslations,
   outputSchema,
+  resetTranslations,
   translatePending,
 } from "./pipeline/translate.ts";
 
@@ -34,6 +35,10 @@ Commands:
     --limit <n>        Translate at most n items
     --model <id>       Anthropic model (default: ${DEFAULT_MODEL}, or SWEDLINES_MODEL)
     --dry-run          Call the model but write nothing
+  translate-reset    Mark one day's translated items pending again (e.g. after a glossary change)
+    --date <YYYY-MM-DD>  Stockholm date (required)
+    --only-older       Skip items already translated with the current prompt version
+    --dry-run          Report only
   translate-export   Write pending items as JSON batches for translation outside the API
     --out <dir>        Output directory (default: translate-work)
     --batch-size <n>   Items per file (default: 25)
@@ -158,6 +163,33 @@ async function translateCommand(args: string[]): Promise<number> {
   return report.candidates > 0 && report.translated === 0 ? 1 : 0;
 }
 
+async function translateResetCommand(args: string[]): Promise<number> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      content: { type: "string", default: "content-repo" },
+      date: { type: "string" },
+      "only-older": { type: "boolean", default: false },
+      "dry-run": { type: "boolean", default: false },
+    },
+  });
+  if (!values.date || !/^\d{4}-\d{2}-\d{2}$/.test(values.date)) {
+    console.error("translate-reset needs --date YYYY-MM-DD");
+    return 2;
+  }
+  const { PROMPT_VERSION } = await import("./prompts/translate.ts");
+  const r = await resetTranslations({
+    store: new ContentStore(values.content),
+    date: values.date,
+    exceptPromptVersion: values["only-older"] ? PROMPT_VERSION : undefined,
+    dryRun: values["dry-run"],
+  });
+  console.log(
+    `${values["dry-run"] ? "would reset" : "reset"} ${r.reset} items on ${values.date} (skipped ${r.skipped} already on current prompt)`,
+  );
+  return 0;
+}
+
 async function translateExportCommand(args: string[]): Promise<number> {
   const { values } = parseArgs({
     args,
@@ -261,6 +293,8 @@ async function main(argv: string[]): Promise<number> {
       return ingestCommand(rest);
     case "translate":
       return translateCommand(rest);
+    case "translate-reset":
+      return translateResetCommand(rest);
     case "translate-export":
       return translateExportCommand(rest);
     case "translate-import":
