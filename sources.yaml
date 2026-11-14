@@ -64,6 +64,8 @@ sources:
     feeds:
       - url: https://rss.aftonbladet.se/rss2/small/pages/sections/senastenytt/
         category: general
+    exclude_title_patterns:
+      - "^CHATT:"
     notes: >-
       RSS 2.0, ~40 items, includes <enclosure> image. Links carry ?utm_medium=rss which
       must be stripped before hashing. Feed includes live chats and entertainment items;

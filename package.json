@@ -19,6 +19,8 @@
     "check": "npm run typecheck && npm run lint && npm run test"
   },
   "dependencies": {
+    "entities": "^9.0.0",
+    "fast-xml-parser": "^5.12.1",
     "yaml": "^2.8.1",
     "zod": "^4.1.12"
   },

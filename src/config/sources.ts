@@ -32,6 +32,8 @@ const sourceSchema = z.object({
   language: z.string().length(2).optional(),
   max_summary_chars: z.number().int().positive().optional(),
   feeds: z.array(feedSchema),
+  /** Regular expressions (case-insensitive); entries whose title matches are dropped. */
+  exclude_title_patterns: z.array(z.string()).default([]),
   notes: z.string().optional(),
 });
 
@@ -60,6 +62,7 @@ export interface Source {
   language: string;
   maxSummaryChars: number;
   feeds: { url: string; category: Category }[];
+  excludeTitlePatterns: string[];
   notes: string | undefined;
 }
 
@@ -89,6 +92,15 @@ export function parseSourcesYaml(text: string): SourcesConfig {
     if (s.enabled && s.feeds.length === 0) {
       throw new SourcesConfigError(`enabled source has no feeds: ${s.key}`);
     }
+    for (const pattern of s.exclude_title_patterns) {
+      try {
+        new RegExp(pattern, "i");
+      } catch {
+        throw new SourcesConfigError(
+          `invalid exclude_title_patterns regex in ${s.key}: ${pattern}`,
+        );
+      }
+    }
   }
 
   return {
@@ -103,6 +115,7 @@ export function parseSourcesYaml(text: string): SourcesConfig {
       language: s.language ?? defaults.language,
       maxSummaryChars: s.max_summary_chars ?? defaults.max_summary_chars,
       feeds: s.feeds,
+      excludeTitlePatterns: s.exclude_title_patterns,
       notes: s.notes,
     })),
   };

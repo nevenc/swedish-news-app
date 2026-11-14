@@ -1,0 +1,49 @@
+name: Ingest
+on:
+  schedule:
+    - cron: "*/15 * * * *"
+  workflow_dispatch:
+concurrency:
+  group: ingest
+  cancel-in-progress: false
+permissions:
+  contents: read
+jobs:
+  ingest:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - name: Check for content repo token
+        id: gate
+        env:
+          TOKEN: ${{ secrets.CONTENT_REPO_TOKEN }}
+        run: |
+          if [ -z "$TOKEN" ]; then
+            echo "::warning::CONTENT_REPO_TOKEN secret is not set; skipping ingest"
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          fi
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.enabled == 'true'
+      - uses: actions/checkout@v4
+        if: steps.gate.outputs.enabled == 'true'
+        with:
+          repository: nevenc/swedlines-content
+          token: ${{ secrets.CONTENT_REPO_TOKEN }}
+          path: content-repo
+      - uses: actions/setup-node@v4
+        if: steps.gate.outputs.enabled == 'true'
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+        if: steps.gate.outputs.enabled == 'true'
+      - name: Configure git identity for the content repo
+        if: steps.gate.outputs.enabled == 'true'
+        run: |
+          git -C content-repo config user.name "swedlines-bot"
+          git -C content-repo config user.email "bot@swedlines.com"
+      - name: Ingest, commit, push
+        if: steps.gate.outputs.enabled == 'true'
+        run: npm run cli --silent -- ingest --content content-repo --push
