@@ -51,6 +51,8 @@ jobs:
         if: steps.gate.outputs.enabled == 'true'
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          # Repository variable; defaults to claude-opus-5-5 in the CLI when unset.
+          SWEDLINES_MODEL: ${{ vars.SWEDLINES_MODEL }}
         run: |
           if [ -z "$ANTHROPIC_API_KEY" ]; then
             echo "::warning::ANTHROPIC_API_KEY not set; skipping translation"

@@ -136,7 +136,7 @@ async function translateCommand(args: string[]): Promise<number> {
       content: { type: "string", default: "content-repo" },
       days: { type: "string", default: "3" },
       limit: { type: "string" },
-      model: { type: "string", default: process.env.SWEDLINES_MODEL ?? DEFAULT_MODEL },
+      model: { type: "string", default: process.env.SWEDLINES_MODEL || DEFAULT_MODEL },
       "dry-run": { type: "boolean", default: false },
     },
   });
