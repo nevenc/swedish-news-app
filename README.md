@@ -6,12 +6,29 @@ A dual-language (Swedish original, English translation) aggregator of Swedish ne
 
 See [SPEC.md](SPEC.md) for the full specification and [sources.yaml](sources.yaml) for the source list.
 
+## Run it locally
+
+Requires Node 24 or newer and git.
+
+```
+git clone git@github.com:nevenc/swedish-news-app.git
+cd swedish-news-app
+npm install
+git clone git@github.com:nevenc/swedlines-content.git content-repo   # the data repo, gitignored here
+
+npm run cli -- ingest        # fetch all ten feeds, write new items into content-repo/content/
+npm run cli -- build         # generate content-repo/public/ (JSON API + stream page)
+npm run cli -- serve         # http://localhost:8787/
+```
+
+Open http://localhost:8787/ for the headline stream and http://localhost:8787/api/v1/latest.json for the API. Re-run `ingest` then `build` whenever you want fresh headlines; `serve` picks up the new files without a restart.
+
+Add `--push` to `ingest` to commit and push new items to the content repo (needs write access). Add `--dry-run` to only report what would be fetched.
+
 ## Development
 
 ```
-npm install
 npm run check          # typecheck + lint + tests
 npm run cli -- sources # list configured sources
+npm run cli -- help    # all commands
 ```
-
-Requires Node 24 or newer (TypeScript runs natively, no build step for development).
