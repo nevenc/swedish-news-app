@@ -44,6 +44,20 @@ jobs:
         run: |
           git -C content-repo config user.name "swedlines-bot"
           git -C content-repo config user.email "bot@swedlines.com"
-      - name: Ingest, commit, push
+      - name: Ingest
         if: steps.gate.outputs.enabled == 'true'
-        run: npm run cli --silent -- ingest --content content-repo --push
+        run: npm run cli --silent -- ingest --content content-repo
+      - name: Build static API and site
+        if: steps.gate.outputs.enabled == 'true'
+        run: npm run cli --silent -- build --content content-repo
+      - name: Commit and push content
+        if: steps.gate.outputs.enabled == 'true'
+        run: |
+          cd content-repo
+          if [ -n "$(git status --porcelain)" ]; then
+            git add -A
+            git commit -q -m "ingest+build: $(date -u +%Y-%m-%dT%H:%M:%SZ)"
+            git push -q
+          else
+            echo "no changes"
+          fi

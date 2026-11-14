@@ -1,4 +1,8 @@
+import { join } from "node:path";
 import { parseArgs } from "node:util";
+import { buildApi } from "./build/api.ts";
+import { serveStatic } from "./build/serve.ts";
+import { buildSite } from "./build/site.ts";
 import { enabledSources, loadSources, SourcesConfigError } from "./config/sources.ts";
 import { commitAll, push } from "./pipeline/git.ts";
 import { commitMessage, ingest } from "./pipeline/ingest.ts";
@@ -15,6 +19,10 @@ Commands:
     --dry-run          Fetch and report, write nothing
     --commit           Commit new items in the content repo
     --push             Push after committing (implies --commit)
+  build              Generate public/ (static API + site) from the content repo
+    --content <dir>    Path to the content repo checkout (default: content-repo)
+  serve              Serve <content>/public locally for preview
+    --port <n>         Port (default: 8787)
 `;
 
 async function sourcesCommand(args: string[]): Promise<number> {
@@ -98,6 +106,38 @@ async function ingestCommand(args: string[]): Promise<number> {
   return 0;
 }
 
+async function buildCommand(args: string[]): Promise<number> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      content: { type: "string", default: "content-repo" },
+      file: { type: "string", default: "sources.yaml" },
+    },
+  });
+  const config = await loadSources(values.file);
+  const store = new ContentStore(values.content);
+  const publicDir = join(values.content, "public");
+  const api = await buildApi({ store, config, publicDir });
+  const site = await buildSite({ publicDir, appRoot: process.cwd() });
+  console.log(
+    `built ${api.files} API files (${api.articles} articles, ${api.days} days) + ${site.join(", ")}`,
+  );
+  return 0;
+}
+
+async function serveCommand(args: string[]): Promise<number> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      content: { type: "string", default: "content-repo" },
+      port: { type: "string", default: "8787" },
+    },
+  });
+  const port = await serveStatic(join(values.content, "public"), Number(values.port));
+  console.log(`serving ${join(values.content, "public")} at http://localhost:${port}/`);
+  return new Promise(() => {}); // run until killed
+}
+
 async function main(argv: string[]): Promise<number> {
   const [command, ...rest] = argv;
   switch (command) {
@@ -105,6 +145,10 @@ async function main(argv: string[]): Promise<number> {
       return sourcesCommand(rest);
     case "ingest":
       return ingestCommand(rest);
+    case "build":
+      return buildCommand(rest);
+    case "serve":
+      return serveCommand(rest);
     case undefined:
     case "help":
     case "--help":
