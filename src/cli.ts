@@ -43,6 +43,7 @@ Commands:
     --model <id>       Provenance (default: claude-fable-5-1)
   build              Generate docs/ (static API + site) from the content repo
     --content <dir>    Path to the content repo checkout (default: content-repo)
+    --domain <host>    Write a CNAME file for GitHub Pages (or SWEDLINES_DOMAIN env)
   serve              Serve <content>/docs locally for preview
     --port <n>         Port (default: 8787)
 `;
@@ -224,13 +225,14 @@ async function buildCommand(args: string[]): Promise<number> {
     options: {
       content: { type: "string", default: "content-repo" },
       file: { type: "string", default: "sources.yaml" },
+      domain: { type: "string", default: process.env.SWEDLINES_DOMAIN },
     },
   });
   const config = await loadSources(values.file);
   const store = new ContentStore(values.content);
   const publicDir = join(values.content, "docs");
   const api = await buildApi({ store, config, publicDir });
-  const site = await buildSite({ publicDir, appRoot: process.cwd() });
+  const site = await buildSite({ publicDir, appRoot: process.cwd(), domain: values.domain });
   console.log(
     `built ${api.files} API files (${api.articles} articles, ${api.days} days) + ${site.join(", ")}`,
   );

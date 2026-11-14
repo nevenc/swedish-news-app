@@ -4,9 +4,17 @@ import { fileURLToPath } from "node:url";
 
 const here = dirname(fileURLToPath(import.meta.url));
 
-/** Copy the stream page and logo into the public directory. */
-export async function buildSite(opts: { publicDir: string; appRoot: string }): Promise<string[]> {
+/** Copy the stream page and logo into the output directory; write CNAME when a domain is set. */
+export async function buildSite(opts: {
+  publicDir: string;
+  appRoot: string;
+  domain?: string | undefined;
+}): Promise<string[]> {
   const written: string[] = [];
+  if (opts.domain) {
+    await writeFile(join(opts.publicDir, "CNAME"), `${opts.domain}\n`, "utf8");
+    written.push("CNAME");
+  }
   const index = await readFile(join(here, "templates", "index.html"), "utf8");
   await writeFile(join(opts.publicDir, "index.html"), index, "utf8");
   written.push("index.html");

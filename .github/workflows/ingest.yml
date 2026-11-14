@@ -59,6 +59,9 @@ jobs:
           fi
       - name: Build static API and site
         if: steps.gate.outputs.enabled == 'true'
+        env:
+          # Set this repository variable to swedlines.com once DNS points at GitHub Pages.
+          SWEDLINES_DOMAIN: ${{ vars.SWEDLINES_DOMAIN }}
         run: npm run cli --silent -- build --content content-repo
       - name: Commit and push content
         if: steps.gate.outputs.enabled == 'true'
