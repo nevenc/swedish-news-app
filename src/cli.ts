@@ -1,3 +1,4 @@
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
 import { buildApi } from "./build/api.ts";
@@ -7,6 +8,11 @@ import { enabledSources, loadSources, SourcesConfigError } from "./config/source
 import { commitAll, push } from "./pipeline/git.ts";
 import { commitMessage, ingest } from "./pipeline/ingest.ts";
 import { ContentStore } from "./pipeline/store.ts";
+import {
+  createAnthropicTranslator,
+  DEFAULT_MODEL,
+  translatePending,
+} from "./pipeline/translate.ts";
 
 const USAGE = `Usage: npm run cli -- <command> [options]
 
@@ -19,6 +25,19 @@ Commands:
     --dry-run          Fetch and report, write nothing
     --commit           Commit new items in the content repo
     --push             Push after committing (implies --commit)
+  translate          Translate pending items to English and categorise them (needs ANTHROPIC_API_KEY)
+    --content <dir>    Path to the content repo checkout (default: content-repo)
+    --days <n>         Only items published in the last n days (default: 3)
+    --limit <n>        Translate at most n items
+    --model <id>       Anthropic model (default: ${DEFAULT_MODEL}, or SWEDLINES_MODEL)
+    --dry-run          Call the model but write nothing
+  translate-export   Write pending items as JSON batches for translation outside the API
+    --out <dir>        Output directory (default: translate-work)
+    --batch-size <n>   Items per file (default: 25)
+  translate-import   Apply translated JSON files (same schema as the model output)
+    --in <file...>     One or more JSON files
+    --provider <name>  Provenance (default: claude-code)
+    --model <id>       Provenance (default: claude-fable-5-1)
   build              Generate public/ (static API + site) from the content repo
     --content <dir>    Path to the content repo checkout (default: content-repo)
   serve              Serve <content>/public locally for preview
@@ -106,6 +125,96 @@ async function ingestCommand(args: string[]): Promise<number> {
   return 0;
 }
 
+async function translateCommand(args: string[]): Promise<number> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      content: { type: "string", default: "content-repo" },
+      days: { type: "string", default: "3" },
+      limit: { type: "string" },
+      model: { type: "string", default: process.env.SWEDLINES_MODEL ?? DEFAULT_MODEL },
+      "dry-run": { type: "boolean", default: false },
+    },
+  });
+  const store = new ContentStore(values.content);
+  const report = await translatePending({
+    store,
+    translateBatch: createAnthropicTranslator({ model: values.model }),
+    days: Number(values.days),
+    ...(values.limit ? { limit: Number(values.limit) } : {}),
+    dryRun: values["dry-run"],
+    log: (line) => console.log(line),
+  });
+  console.log(
+    `translated=${report.translated} skipped=${report.skipped} failed=${report.failed} ` +
+      `of ${report.candidates} pending in ${report.batches} batch(es); ` +
+      `tokens in=${report.usage.input} cached=${report.usage.cached} out=${report.usage.output}`,
+  );
+  for (const e of report.errors.slice(0, 10)) console.error(`  ! ${e}`);
+  return report.candidates > 0 && report.translated === 0 ? 1 : 0;
+}
+
+async function translateExportCommand(args: string[]): Promise<number> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      content: { type: "string", default: "content-repo" },
+      days: { type: "string", default: "3" },
+      out: { type: "string", default: "translate-work" },
+      "batch-size": { type: "string", default: "25" },
+    },
+  });
+  const batches = await exportPending({
+    store: new ContentStore(values.content),
+    days: Number(values.days),
+    batchSize: Number(values["batch-size"]),
+  });
+  await mkdir(values.out, { recursive: true });
+  let total = 0;
+  for (const [i, batch] of batches.entries()) {
+    const name = `batch-${String(i + 1).padStart(3, "0")}.json`;
+    await writeFile(join(values.out, name), `${JSON.stringify(batch, null, 1)}\n`, "utf8");
+    total += batch.length;
+  }
+  console.log(`${total} pending items in ${batches.length} file(s) under ${values.out}/`);
+  return 0;
+}
+
+async function translateImportCommand(args: string[]): Promise<number> {
+  const { values } = parseArgs({
+    args,
+    options: {
+      content: { type: "string", default: "content-repo" },
+      in: { type: "string", multiple: true },
+      provider: { type: "string", default: "claude-code" },
+      model: { type: "string", default: "claude-fable-5-1" },
+    },
+  });
+  if (!values.in?.length) {
+    console.error("translate-import needs at least one --in <file>");
+    return 2;
+  }
+  const store = new ContentStore(values.content);
+  let applied = 0;
+  for (const file of values.in) {
+    const parsed = outputSchema.safeParse(JSON.parse(await readFile(file, "utf8")));
+    if (!parsed.success) {
+      console.error(`${file}: does not match the output schema\n${parsed.error.message}`);
+      return 1;
+    }
+    const r = await importTranslations({
+      store,
+      output: parsed.data,
+      provider: values.provider,
+      model: values.model,
+    });
+    console.log(`${file}: applied=${r.applied} unknown=${r.unknown} alreadyDone=${r.alreadyDone}`);
+    applied += r.applied;
+  }
+  console.log(`total applied=${applied}`);
+  return 0;
+}
+
 async function buildCommand(args: string[]): Promise<number> {
   const { values } = parseArgs({
     args,
@@ -145,6 +254,12 @@ async function main(argv: string[]): Promise<number> {
       return sourcesCommand(rest);
     case "ingest":
       return ingestCommand(rest);
+    case "translate":
+      return translateCommand(rest);
+    case "translate-export":
+      return translateExportCommand(rest);
+    case "translate-import":
+      return translateImportCommand(rest);
     case "build":
       return buildCommand(rest);
     case "serve":

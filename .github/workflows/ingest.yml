@@ -47,6 +47,16 @@ jobs:
       - name: Ingest
         if: steps.gate.outputs.enabled == 'true'
         run: npm run cli --silent -- ingest --content content-repo
+      - name: Translate pending items
+        if: steps.gate.outputs.enabled == 'true'
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$ANTHROPIC_API_KEY" ]; then
+            echo "::warning::ANTHROPIC_API_KEY not set; skipping translation"
+          else
+            npm run cli --silent -- translate --content content-repo || echo "::warning::translation step failed; items stay pending"
+          fi
       - name: Build static API and site
         if: steps.gate.outputs.enabled == 'true'
         run: npm run cli --silent -- build --content content-repo

@@ -19,6 +19,7 @@
     "check": "npm run typecheck && npm run lint && npm run test"
   },
   "dependencies": {
+    "@anthropic-ai/sdk": "^1.8.0",
     "entities": "^9.0.0",
     "fast-xml-parser": "^5.12.1",
     "yaml": "^2.8.1",

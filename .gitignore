@@ -7,3 +7,4 @@ coverage/
 .DS_Store
 # Local checkout of the content repo during development
 content-repo/
+translate-work/

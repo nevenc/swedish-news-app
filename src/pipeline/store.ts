@@ -43,6 +43,27 @@ export class ContentStore {
     return ids;
   }
 
+  /** Articles published on or after `since`, by walking only the day directories in range. */
+  async listArticles(opts: { since: Date }): Promise<Article[]> {
+    const out: Article[] = [];
+    const start = stockholmDate(opts.since);
+    const startKey = `${start.year}${start.month}${start.day}`;
+    let entries: string[];
+    try {
+      entries = await readdir(this.contentDir, { recursive: true, encoding: "utf8" });
+    } catch (err) {
+      if ((err as NodeJS.ErrnoException).code === "ENOENT") return out;
+      throw err;
+    }
+    for (const rel of entries) {
+      const m = /^(\d{4})\/(\d{2})\/(\d{2})\/[0-9a-f]{12}\.json$/.exec(rel);
+      if (!m || `${m[1]}${m[2]}${m[3]}` < startKey) continue;
+      const raw = JSON.parse(await readFile(join(this.contentDir, rel), "utf8"));
+      out.push(articleSchema.parse(raw));
+    }
+    return out;
+  }
+
   async write(article: Article): Promise<string> {
     articleSchema.parse(article);
     const rel = ContentStore.relativePath(article);
