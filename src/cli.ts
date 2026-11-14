@@ -11,6 +11,9 @@ import { ContentStore } from "./pipeline/store.ts";
 import {
   createAnthropicTranslator,
   DEFAULT_MODEL,
+  exportPending,
+  importTranslations,
+  outputSchema,
   translatePending,
 } from "./pipeline/translate.ts";
 
