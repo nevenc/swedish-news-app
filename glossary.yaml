@@ -105,6 +105,14 @@ terms:
   - { sv: skidskytte, en: biathlon }
   - { sv: Sverigepremiären, en: the Swedish season opener }
 
+  # Money words (headline compounds the model tends to over-translate)
+  - { sv: miljardböter, en: billions in fines, note: no currency unless the source names one }
+  - { sv: miljonböter, en: millions in fines, note: no currency unless the source names one }
+  - { sv: miljardbelopp, en: billions, note: no currency unless the source names one }
+  - { sv: miljonbelopp, en: millions, note: no currency unless the source names one }
+  - { sv: miljardinvestering, en: multi-billion investment }
+  - { sv: miljardvallen, en: the billion-kronor mark, note: SEK 1 billion in revenue }
+
   # Society and everyday terms
   - { sv: förskola, en: preschool }
   - { sv: gymnasiet, en: upper secondary school }
