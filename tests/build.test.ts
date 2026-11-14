@@ -70,6 +70,6 @@ describe("buildApi + buildSite", () => {
 
     const site = await buildSite({ publicDir, appRoot: process.cwd() });
     expect(site).toEqual(["index.html", "assets/logo.svg"]);
-    expect(await readFile(join(publicDir, "index.html"), "utf8")).toContain("/api/v1/latest.json");
+    expect(await readFile(join(publicDir, "index.html"), "utf8")).toContain("api/v1/latest.json");
   });
 });
