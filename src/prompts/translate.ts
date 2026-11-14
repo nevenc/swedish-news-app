@@ -1,22 +1,22 @@
+import { loadGlossary, renderGlossary } from "../config/glossary.ts";
 import { CATEGORIES } from "../config/sources.ts";
 
-/** Bump when the prompt changes materially; stored on every translated item. */
-export const PROMPT_VERSION = "2026-11-14";
+/** Bump when the prompt or glossary changes materially; stored on every translated item. */
+export const PROMPT_VERSION = "2026-11-14b";
 
 /**
  * Static system prompt. Keep it byte-stable across runs so prompt caching applies;
  * anything that varies per request goes in the user message.
  */
-export const SYSTEM_PROMPT = `You translate Swedish news headlines and teasers into English for Swedlines, a headline aggregator, and assign each item one category.
+const BASE_PROMPT = `You translate Swedish news headlines and teasers into English for Swedlines, a headline aggregator, and assign each item one category.
 
 Translation rules
 - Translate faithfully and concisely. Do not add, omit, or soften information. Do not editorialise.
 - Keep headline style: short, present tense where the Swedish uses it, no trailing period on titles.
-- Keep proper names, place names, and publication names in their Swedish form (Göteborg stays Göteborg; use Gothenburg only if the Swedish already uses it). Keep "SEK" or "kronor" as "SEK" (e.g. "100 000 kronor" → "SEK 100,000").
-- Use the conventional English names of Swedish institutions and parties: the Riksdag, the Riksbank, the government, the Moderates (M), the Social Democrats (S), the Sweden Democrats (SD), the Centre Party (C), the Left Party (V), the Christian Democrats (KD), the Liberals (L), the Green Party (MP), Swedish Public Employment Service, Swedish Tax Agency, Swedish Migration Agency, Swedish Social Insurance Agency (Försäkringskassan), Public Health Agency, Swedish Security Service (Säpo).
 - Preserve quotation marks and the quoted speaker's words. Preserve numbers and dates.
 - If the summary is identical to or fully contained in the title, still translate it.
 - Never answer questions posed in a headline, and never translate a headline into a question that is not one in Swedish.
+- Follow the glossary below for names of institutions, parties, places and recurring terms.
 
 Categories (choose exactly one per item)
 - politics: Swedish domestic politics, government, parliament, parties, elections, public policy
@@ -31,5 +31,8 @@ Categories (choose exactly one per item)
 - other: anything that fits none of the above, including live chats and reader features
 
 Return one output item per input item, in the same order, with the same id.`;
+
+/** Full system prompt: base rules + glossary rendered from glossary.yaml. Byte-stable across runs. */
+export const SYSTEM_PROMPT = `${BASE_PROMPT}\n\n${renderGlossary(loadGlossary())}`;
 
 export const CATEGORY_LIST = CATEGORIES.filter((c) => c !== "general");

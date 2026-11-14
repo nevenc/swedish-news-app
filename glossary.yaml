@@ -1,0 +1,125 @@
+# Translation glossary: Swedish term -> preferred English rendering.
+# Rendered into the translation system prompt. Keep entries short; `note` is optional guidance.
+# Edit freely; bump PROMPT_VERSION in src/prompts/translate.ts when you change many entries.
+
+rules:
+  - Keep proper names, publication names, programme names and brand names in their Swedish form (Göteborg, Nyhetsmorgon, Uppdrag granskning, Kalla fakta).
+  - Keep "SEK" only where the Swedish text states an amount in kronor; never add a currency the source does not mention ("miljardböter" is "billions in fines", not "billions in kronor").
+  - Write amounts as "SEK 100,000" and "SEK 4 billion"; "miljoner" is million, "miljarder" is billion.
+  - Party abbreviations after a name stay as in Swedish, e.g. "Ulf Kristersson (M)".
+  - Headline dashes ("–") and bullet separators ("•", "✓") stay as they are.
+
+terms:
+  # Parties
+  - { sv: Socialdemokraterna, en: the Social Democrats, note: abbreviation S }
+  - { sv: Moderaterna, en: the Moderates, note: abbreviation M }
+  - { sv: Sverigedemokraterna, en: the Sweden Democrats, note: abbreviation SD }
+  - { sv: Centerpartiet, en: the Centre Party, note: abbreviation C }
+  - { sv: Vänsterpartiet, en: the Left Party, note: abbreviation V }
+  - { sv: Kristdemokraterna, en: the Christian Democrats, note: abbreviation KD }
+  - { sv: Liberalerna, en: the Liberals, note: abbreviation L }
+  - { sv: Miljöpartiet, en: the Green Party, note: abbreviation MP }
+  - { sv: de rödgröna, en: the red-greens }
+  - { sv: Alliansen, en: the Alliance, note: the M-C-L-KD bloc }
+  - { sv: Tidöavtalet, en: the Tidö Agreement }
+  - { sv: Ungsvenskarna, en: Ungsvenskarna, note: SD youth league; keep the name }
+  - { sv: Muf, en: Muf, note: Moderate Youth League; keep the name }
+  - { sv: SSU, en: SSU, note: Social Democratic youth league; keep the name }
+
+  # State and politics
+  - { sv: riksdagen, en: the Riksdag }
+  - { sv: regeringen, en: the government }
+  - { sv: regeringsbildningen, en: the government formation }
+  - { sv: övergångsbudget, en: transitional budget }
+  - { sv: statsminister, en: prime minister }
+  - { sv: finansminister, en: finance minister }
+  - { sv: extraval, en: snap election }
+  - { sv: kommun, en: municipality }
+  - { sv: kommunstyrelsen, en: the municipal executive board }
+  - { sv: kommunalråd, en: municipal commissioner }
+  - { sv: region, en: region, note: the health-care region, not a geographic area }
+  - { sv: län, en: county }
+  - { sv: länsstyrelsen, en: the county administrative board }
+  - { sv: Riksbanken, en: the Riksbank }
+  - { sv: Kronofogden, en: the Enforcement Authority }
+  - { sv: Försäkringskassan, en: the Social Insurance Agency }
+  - { sv: Arbetsförmedlingen, en: the Public Employment Service }
+  - { sv: Skatteverket, en: the Tax Agency }
+  - { sv: Migrationsverket, en: the Migration Agency }
+  - { sv: Skolverket, en: the National Agency for Education }
+  - { sv: Trafikverket, en: the Transport Administration }
+  - { sv: Naturvårdsverket, en: the Environmental Protection Agency }
+  - { sv: Folkhälsomyndigheten, en: the Public Health Agency }
+  - { sv: IVO, en: the Health and Social Care Inspectorate (IVO) }
+  - { sv: Kriminalvården, en: the Prison and Probation Service }
+  - { sv: Säpo, en: the Security Service (Säpo) }
+  - { sv: Must, en: the military intelligence service (Must) }
+  - { sv: Svenska kraftnät, en: Svenska kraftnät, note: the grid operator; keep the name }
+  - { sv: Systembolaget, en: Systembolaget, note: keep the name }
+  - { sv: LO, en: LO, note: the blue-collar union confederation; keep the name }
+  - { sv: Svenskt Näringsliv, en: the Confederation of Swedish Enterprise }
+  - { sv: Saco, en: Saco, note: keep the name }
+
+  # Justice and crime
+  - { sv: gripen, en: arrested }
+  - { sv: anhållen, en: detained, note: held by prosecutor decision before a remand hearing }
+  - { sv: häktad, en: remanded in custody }
+  - { sv: åtalad, en: charged }
+  - { sv: åtal, en: charges }
+  - { sv: åklagare, en: prosecutor }
+  - { sv: Åklagarmyndigheten, en: the Prosecution Authority }
+  - { sv: tingsrätt, en: district court }
+  - { sv: hovrätt, en: court of appeal }
+  - { sv: Högsta domstolen, en: the Supreme Court }
+  - { sv: dömd, en: convicted }
+  - { sv: misshandel, en: assault }
+  - { sv: grov misshandel, en: aggravated assault }
+  - { sv: mord, en: murder }
+  - { sv: dråp, en: manslaughter }
+  - { sv: mordförsök, en: attempted murder }
+  - { sv: hets mot folkgrupp, en: incitement against an ethnic group }
+  - { sv: bedrägeri, en: fraud }
+  - { sv: drograttfylleri, en: drug-driving }
+  - { sv: rattfylleri, en: drink-driving }
+  - { sv: skyddsstopp, en: safety stoppage, note: a union-ordered work stoppage }
+  - { sv: kontaktförbud, en: restraining order }
+
+  # Places and media
+  - { sv: Göteborg, en: Göteborg }
+  - { sv: Skåne, en: Skåne }
+  - { sv: Norrland, en: Norrland }
+  - { sv: Höga kusten, en: the High Coast }
+  - { sv: Ekot, en: Ekot, note: Sveriges Radio news; keep the name }
+  - { sv: Bokmässan, en: the Göteborg Book Fair }
+  - { sv: Musikhjälpen, en: Musikhjälpen, note: keep the name }
+
+  # Sport
+  - { sv: Tre Kronor, en: Tre Kronor, note: the men's national ice hockey team }
+  - { sv: Damkronorna, en: Damkronorna, note: the women's national ice hockey team }
+  - { sv: Allsvenskan, en: the Allsvenskan }
+  - { sv: Superettan, en: the Superettan }
+  - { sv: SHL, en: the SHL }
+  - { sv: landslaget, en: the national team }
+  - { sv: förbundskapten, en: head coach, note: national team }
+  - { sv: kval, en: play-off, note: promotion/relegation play-off }
+  - { sv: skidskytte, en: biathlon }
+  - { sv: Sverigepremiären, en: the Swedish season opener }
+
+  # Society and everyday terms
+  - { sv: förskola, en: preschool }
+  - { sv: gymnasiet, en: upper secondary school }
+  - { sv: insändare, en: letter, note: reader's letter to the editor }
+  - { sv: krönika, en: column }
+  - { sv: nationella prov, en: national tests }
+  - { sv: elområde, en: bidding zone, note: electricity price area }
+  - { sv: flaskhalsintäkter, en: congestion income }
+  - { sv: karensdag, en: sick-pay waiting day }
+  - { sv: julbord, en: Christmas buffet }
+  - { sv: lussebullar, en: Lucia buns }
+  - { sv: hemtjänst, en: home care }
+  - { sv: äldreboende, en: care home }
+  - { sv: LSS-boende, en: LSS home, note: assisted housing under the LSS act }
+  - { sv: räddningstjänsten, en: the rescue service }
+  - { sv: villabrand, en: house fire }
+  - { sv: snökaos, en: snow chaos }
+  - { sv: lanthandel, en: village shop }
