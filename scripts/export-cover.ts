@@ -1,18 +1,48 @@
 /**
- * Ko-fi / social cover: 1200x400 (3:1), rendered at 2x as well. Run: npm run cover
- * Wordmark uses Avenir Next (macOS) as a stand-in for Manrope when Manrope is not installed.
+ * Ko-fi / social cover: 1200x400 (3:1), rendered at 1x and 2x. Run: npm run cover
+ *
+ * Text is converted to outlines from the bundled Manrope variable font (assets/fonts/manrope,
+ * SIL OFL) with fontkit, so the render is identical on every machine and needs no installed fonts.
  */
 import { mkdir, writeFile } from "node:fs/promises";
 import { join } from "node:path";
+import * as fontkit from "fontkit";
 import sharp from "sharp";
 
 const W = 1200;
 const H = 400;
 const BLUE = "#006AA7";
 const YELLOW = "#FECC02";
-const FONT = "Manrope, 'Avenir Next', 'Helvetica Neue', Arial, sans-serif";
 
-// Faint "headline stream" in the background: rows of bars of varying width.
+const manrope = fontkit.openSync(join(process.cwd(), "assets", "fonts", "manrope", "Manrope[wght].ttf"));
+if (!("getVariation" in manrope)) throw new Error("expected a single font, not a collection");
+
+/** Lay out `text` with Manrope at the given weight and return SVG <path> outlines at (x, baselineY). */
+function outlines(
+  text: string,
+  o: { x: number; y: number; size: number; wght: number; tracking?: number; fill: string; opacity?: number },
+): string {
+  const font = manrope.getVariation({ wght: o.wght });
+  const run = font.layout(text);
+  const s = o.size / font.unitsPerEm;
+  let x = o.x;
+  const parts: string[] = [];
+  run.glyphs.forEach((g, i) => {
+    const p = run.positions[i];
+    if (!p) return;
+    const d = g.path.toSVG();
+    if (d) {
+      parts.push(
+        `<path d="${d}" transform="translate(${(x + p.xOffset * s).toFixed(2)} ${(o.y - p.yOffset * s).toFixed(2)}) scale(${s.toFixed(5)} ${(-s).toFixed(5)})"/>`,
+      );
+    }
+    x += p.xAdvance * s + (o.tracking ?? 0);
+  });
+  const opacity = o.opacity === undefined ? "" : ` fill-opacity="${o.opacity}"`;
+  return `<g fill="${o.fill}"${opacity}>${parts.join("")}</g>`;
+}
+
+// Faint "headline stream" on the right: rows of bars of varying width.
 const rows: string[] = [];
 const widths = [170, 120, 200, 100, 150, 190, 110, 160, 140, 200, 105, 180];
 for (let i = 0; i < 12; i++) {
@@ -30,9 +60,9 @@ const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" wid
   <rect x="128" y="112" width="180" height="40" rx="20" fill="${YELLOW}"/>
   <rect x="128" y="167" width="130" height="40" rx="20" fill="${YELLOW}"/>
   <rect x="128" y="222" width="90" height="40" rx="20" fill="${YELLOW}"/>
-  <text x="372" y="208" font-family="${FONT}" font-weight="800" font-size="104" letter-spacing="-4" fill="#fff">swedlines</text>
-  <text x="378" y="262" font-family="${FONT}" font-weight="600" font-size="30" fill="${YELLOW}">Swedish news headlines, in Swedish and English</text>
-  <text x="378" y="304" font-family="${FONT}" font-weight="600" font-size="26" fill="#fff" fill-opacity="0.8">Updated every 15 minutes · swedlines.com</text>
+  ${outlines("swedlines", { x: 372, y: 208, size: 104, wght: 800, tracking: -4, fill: "#fff" })}
+  ${outlines("Swedish news headlines, in Swedish and English", { x: 378, y: 262, size: 30, wght: 600, fill: YELLOW })}
+  ${outlines("Updated every 15 minutes · swedlines.com", { x: 378, y: 304, size: 26, wght: 600, fill: "#fff", opacity: 0.8 })}
   <rect x="0" y="${H - 8}" width="${W}" height="8" fill="${YELLOW}"/>
 </svg>`;
 
