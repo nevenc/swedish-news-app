@@ -57,6 +57,11 @@ export async function buildSite(opts: {
   await writeFile(join(opts.publicDir, "about", "index.html"), about, "utf8");
   written.push("about/index.html");
 
+  const privacy = await readFile(join(here, "templates", "privacy.html"), "utf8");
+  await mkdir(join(opts.publicDir, "privacy"), { recursive: true });
+  await writeFile(join(opts.publicDir, "privacy", "index.html"), privacy, "utf8");
+  written.push("privacy/index.html");
+
   await mkdir(join(opts.publicDir, "assets"), { recursive: true });
   const logo = join(opts.appRoot, "assets", "logo");
   // Rasterized sizes come from `npm run logo` / `npm run cover` (scripts/) and are committed.

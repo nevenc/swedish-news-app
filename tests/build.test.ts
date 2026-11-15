@@ -72,6 +72,7 @@ describe("buildApi + buildSite", () => {
     expect(site).toEqual([
       "index.html",
       "about/index.html",
+      "privacy/index.html",
       "assets/logo.svg",
       "favicon.ico",
       "assets/icon-180.png",
@@ -90,5 +91,10 @@ describe("buildApi + buildSite", () => {
     for (const s of config.sources.filter((x) => x.enabled)) expect(about).toContain(s.name);
     expect(about).toContain('href="https://ko-fi.com/swedlines"');
     expect(about).toContain('href="mailto:swedlines@gmail.com"');
+    expect(about).toContain('href="../privacy/"');
+    const privacy = await readFile(join(publicDir, "privacy", "index.html"), "utf8");
+    expect(privacy).toContain('<link rel="canonical" href="https://swedlines.com/privacy/">');
+    expect(privacy).toContain("What we do not collect");
+    expect(privacy).toContain("Vad vi inte samlar in");
   });
 });
