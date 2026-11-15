@@ -52,7 +52,6 @@
   .refresh.busy { pointer-events: none; opacity: 0.7; }
   @keyframes spin { to { transform: rotate(360deg); } }
   @media (prefers-reduced-motion: reduce) { .refresh.busy svg { animation: none; } }
-  .status { color: var(--muted); font-size: 12px; font-variant-numeric: tabular-nums; white-space: nowrap; }
   .kofi { display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); color: var(--fg); text-decoration: none; font-weight: 600; white-space: nowrap; }
   .kofi:hover { background: var(--hover); }
   .kofi:focus-visible { outline: 2px solid var(--yellow); outline-offset: -2px; }
@@ -108,7 +107,7 @@
         <button type="button" data-lang="both" aria-pressed="false" data-i18n="lang_both">Both</button>
       </fieldset>
       <select id="source" aria-label="Source" data-i18n-attrs="aria-label:source_label"><option value="" data-i18n="all_sources">All sources</option></select>
-      <span class="status" id="status" aria-live="polite"></span>
+      <span class="status sr-only" id="status" aria-live="polite"></span>
       <button type="button" class="refresh" id="refresh" title="Refresh headlines" aria-label="Refresh headlines" data-i18n-attrs="title:refresh_label,aria-label:refresh_label">
         <svg viewBox="0 0 24 24" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 12a8 8 0 1 1-2.34-5.66"/><path d="M20 4v5h-5"/></svg>
       </button>
@@ -306,7 +305,9 @@
     if (!lastChecked) return;
     let text = generatedAt ? fmt("status_updated", { time: when(generatedAt) }) : t("status_unknown");
     if (lastChecked - (generatedAt || 0) > 60 * 1000) text += ` · ${fmt("status_checked", { time: timeFmt.format(lastChecked) })}`;
-    status.textContent = text;
+    // Shown as the refresh button's tooltip; the live region is screen-reader only.
+    if (status.textContent !== text) status.textContent = text;
+    refreshBtn.title = `${t("refresh_label")} · ${text}`;
     let msg = "";
     if (lastFailed && data) msg = generatedAt ? fmt("refresh_failed", { time: when(generatedAt) }) : t("refresh_failed_unknown");
     else if (generatedAt && Date.now() - generatedAt > STALE_MS) msg = fmt("stale_notice", { time: when(generatedAt) });
