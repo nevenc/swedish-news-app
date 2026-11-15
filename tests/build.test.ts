@@ -95,7 +95,7 @@ describe("buildApi + buildSite", () => {
     for (const s of config.sources.filter((x) => x.enabled)) expect(about).toContain(s.name);
     expect(about).toContain('href="https://ko-fi.com/swedlines"');
     expect(about).toContain('href="mailto:swedlines@gmail.com"');
-    expect(about).toContain('href="../privacy/"');
+    expect(about).toContain('href="../privacy/"'); // footer link
     const privacy = await readFile(join(publicDir, "privacy", "index.html"), "utf8");
     expect(privacy).toContain('<link rel="canonical" href="https://swedlines.com/privacy/">');
     expect(privacy).toContain("What we do not collect");
