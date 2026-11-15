@@ -17,7 +17,8 @@
     "test": "vitest run",
     "test:watch": "vitest",
     "check": "npm run typecheck && npm run lint && npm run test",
-    "logo": "node scripts/export-logo.ts"
+    "logo": "node scripts/export-logo.ts",
+    "cover": "node scripts/export-cover.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.8.0",
