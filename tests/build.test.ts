@@ -89,5 +89,6 @@ describe("buildApi + buildSite", () => {
     expect(about).not.toContain("<!--PUBLISHERS");
     for (const s of config.sources.filter((x) => x.enabled)) expect(about).toContain(s.name);
     expect(about).toContain('href="https://ko-fi.com/swedlines"');
+    expect(about).toContain('href="mailto:swedlines@gmail.com"');
   });
 });
