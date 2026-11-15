@@ -68,16 +68,26 @@ describe("buildApi + buildSite", () => {
     const status = await read("status.json");
     expect(status).toMatchObject({ articles: report.written, translated: 0 });
 
-    const site = await buildSite({ publicDir, appRoot: process.cwd() });
+    const site = await buildSite({ publicDir, appRoot: process.cwd(), config });
     expect(site).toEqual([
       "index.html",
+      "about/index.html",
       "assets/logo.svg",
       "favicon.ico",
       "assets/icon-180.png",
       "assets/icon-192.png",
       "assets/icon-512.png",
+      "assets/og.png",
     ]);
     expect((await stat(join(publicDir, "favicon.ico"))).size).toBeGreaterThan(0);
-    expect(await readFile(join(publicDir, "index.html"), "utf8")).toContain("api/v1/latest.json");
+    expect((await stat(join(publicDir, "assets", "og.png"))).size).toBeGreaterThan(0);
+    const index = await readFile(join(publicDir, "index.html"), "utf8");
+    expect(index).toContain("api/v1/latest.json");
+    expect(index).toContain('<link rel="canonical" href="https://swedlines.com/">');
+    expect(index).toContain('content="https://swedlines.com/assets/og.png"');
+    const about = await readFile(join(publicDir, "about", "index.html"), "utf8");
+    expect(about).not.toContain("<!--PUBLISHERS");
+    for (const s of config.sources.filter((x) => x.enabled)) expect(about).toContain(s.name);
+    expect(about).toContain('href="https://ko-fi.com/swedlines"');
   });
 });

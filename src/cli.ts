@@ -264,7 +264,12 @@ async function buildCommand(args: string[]): Promise<number> {
   const store = new ContentStore(values.content);
   const publicDir = join(values.content, "docs");
   const api = await buildApi({ store, config, publicDir });
-  const site = await buildSite({ publicDir, appRoot: process.cwd(), domain: values.domain });
+  const site = await buildSite({
+    publicDir,
+    appRoot: process.cwd(),
+    domain: values.domain,
+    config,
+  });
   console.log(
     `built ${api.files} API files (${api.articles} articles, ${api.days} days) + ${site.join(", ")}`,
   );
