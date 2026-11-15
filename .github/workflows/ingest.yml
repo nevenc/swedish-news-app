@@ -1,11 +1,12 @@
 name: Ingest
 on:
   schedule:
-    # Cron is UTC. Off-peak minutes, because GitHub delays or drops runs on the :00/:15/:30/:45 marks.
-    # Daytime (06:00-22:59 UTC = 07-23 Stockholm in winter): every 15 minutes.
+    # Daytime: every 15 minutes.
     - cron: "7,22,37,52 6-22 * * *"
-    # Night (23:00-05:59 UTC = 00-06 Stockholm in winter): hourly.
-    - cron: "7 23,0-5 * * *"
+    # Night: 23:00 UTC
+    - cron: "7 23 * * *"
+    # Night: 00:00 to 05:00 UTC
+    - cron: "7 0-5 * * *"
   workflow_dispatch:
 concurrency:
   group: ingest
