@@ -79,11 +79,15 @@ describe("buildApi + buildSite", () => {
       "assets/icon-192.png",
       "assets/icon-512.png",
       "assets/og.png",
+      "assets/fonts/manrope.ttf",
+      "assets/fonts/OFL.txt",
     ]);
     expect((await stat(join(publicDir, "favicon.ico"))).size).toBeGreaterThan(0);
     expect((await stat(join(publicDir, "assets", "og.png"))).size).toBeGreaterThan(0);
     const index = await readFile(join(publicDir, "index.html"), "utf8");
     expect(index).toContain("api/v1/latest.json");
+    expect(index).not.toContain("fonts.googleapis.com");
+    expect(index).toContain('url("assets/fonts/manrope.ttf")');
     expect(index).toContain('<link rel="canonical" href="https://swedlines.com/">');
     expect(index).toContain('content="https://swedlines.com/assets/og.png"');
     const about = await readFile(join(publicDir, "about", "index.html"), "utf8");

@@ -72,7 +72,14 @@ export async function buildSite(opts: {
     [join(logo, "png", "mark-192.png"), "assets/icon-192.png"],
     [join(logo, "png", "mark-512.png"), "assets/icon-512.png"],
     [join(opts.appRoot, "assets", "social", "og-1200x630.png"), "assets/og.png"],
+    // Self-hosted typeface (SIL OFL; licence shipped alongside), so no font service is contacted.
+    [
+      join(opts.appRoot, "assets", "fonts", "manrope", "Manrope[wght].ttf"),
+      "assets/fonts/manrope.ttf",
+    ],
+    [join(opts.appRoot, "assets", "fonts", "manrope", "OFL.txt"), "assets/fonts/OFL.txt"],
   ];
+  await mkdir(join(opts.publicDir, "assets", "fonts"), { recursive: true });
   for (const [from, rel] of copies) {
     await copyFile(from, join(opts.publicDir, rel));
     written.push(rel);
