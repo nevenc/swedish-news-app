@@ -69,7 +69,15 @@ describe("buildApi + buildSite", () => {
     expect(status).toMatchObject({ articles: report.written, translated: 0 });
 
     const site = await buildSite({ publicDir, appRoot: process.cwd() });
-    expect(site).toEqual(["index.html", "assets/logo.svg"]);
+    expect(site).toEqual([
+      "index.html",
+      "assets/logo.svg",
+      "favicon.ico",
+      "assets/icon-180.png",
+      "assets/icon-192.png",
+      "assets/icon-512.png",
+    ]);
+    expect((await stat(join(publicDir, "favicon.ico"))).size).toBeGreaterThan(0);
     expect(await readFile(join(publicDir, "index.html"), "utf8")).toContain("api/v1/latest.json");
   });
 });

@@ -20,10 +20,18 @@ export async function buildSite(opts: {
   written.push("index.html");
 
   await mkdir(join(opts.publicDir, "assets"), { recursive: true });
-  await copyFile(
-    join(opts.appRoot, "assets", "logo", "mark.svg"),
-    join(opts.publicDir, "assets", "logo.svg"),
-  );
-  written.push("assets/logo.svg");
+  const logo = join(opts.appRoot, "assets", "logo");
+  // Rasterized sizes come from `npm run logo` (scripts/export-logo.ts) and are committed.
+  const copies: [string, string][] = [
+    [join(logo, "mark.svg"), "assets/logo.svg"],
+    [join(logo, "favicon.ico"), "favicon.ico"],
+    [join(logo, "png", "mark-180.png"), "assets/icon-180.png"],
+    [join(logo, "png", "mark-192.png"), "assets/icon-192.png"],
+    [join(logo, "png", "mark-512.png"), "assets/icon-512.png"],
+  ];
+  for (const [from, rel] of copies) {
+    await copyFile(from, join(opts.publicDir, rel));
+    written.push(rel);
+  }
   return written;
 }
