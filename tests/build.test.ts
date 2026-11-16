@@ -100,6 +100,7 @@ describe("buildApi + buildSite", () => {
     expect(index).toContain('<link rel="canonical" href="https://swedlines.com/">');
     expect(index).toContain('content="https://swedlines.com/assets/og.png"');
     const about = await readFile(join(publicDir, "about", "index.html"), "utf8");
+    expect(about).toContain('<img class="hero" src="../assets/og.png"');
     expect(about).not.toContain("<!--PUBLISHERS");
     for (const s of config.sources.filter((x) => x.enabled)) expect(about).toContain(s.name);
     expect(about).toContain('href="https://ko-fi.com/swedlines"');
