@@ -30,17 +30,13 @@ export function renderPublishers(config: SourcesConfig, locale: "en" | "sv"): st
   return `<ul class="pubs">\n${items.join("\n")}\n</ul>`;
 }
 
-const REPO = "https://github.com/nevenc/swedish-news-app";
-
-/** Footer version line: package version plus the short commit (linked) when known; empty when no version is given. */
+/** Footer version, placed before the About link: package version plus the short commit when known; empty when no version is given. */
 export function renderVersion(
   v: { version: string; commit?: string | undefined } | undefined,
 ): string {
   if (!v) return "";
-  const commit = v.commit
-    ? ` · <a href="${REPO}/commit/${esc(v.commit)}" rel="noopener">${esc(v.commit.slice(0, 7))}</a>`
-    : "";
-  return `<p class="version">v${esc(v.version)}${commit}</p>`;
+  const commit = v.commit ? ` · ${esc(v.commit.slice(0, 7))}` : "";
+  return `<span class="version">v${esc(v.version)}${commit}</span> · `;
 }
 
 /** Copy the stream page, About page and logo assets into the output directory; write CNAME when a domain is set. */

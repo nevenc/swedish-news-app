@@ -94,9 +94,7 @@ describe("buildApi + buildSite", () => {
     expect(index).not.toContain("fonts.googleapis.com");
     expect(index).toContain('url("assets/fonts/manrope.ttf")');
     expect(index).toContain('class="sum"'); // teaser line under each headline
-    expect(index).toContain(
-      '<p class="version">v0.1.0 · <a href="https://github.com/nevenc/swedish-news-app/commit/3ee85ea0123456789" rel="noopener">3ee85ea</a></p>',
-    );
+    expect(index).toContain('<p><span class="version">v0.1.0 · 3ee85ea</span> · <a href="about/"');
     expect(index).toContain('<link rel="canonical" href="https://swedlines.com/">');
     expect(index).toContain('content="https://swedlines.com/assets/og.png"');
     const about = await readFile(join(publicDir, "about", "index.html"), "utf8");
@@ -109,6 +107,7 @@ describe("buildApi + buildSite", () => {
     expect(privacy).toContain('<link rel="canonical" href="https://swedlines.com/privacy/">');
     expect(privacy).toContain("What we do not collect");
     expect(privacy).toContain("Vad vi inte samlar in");
-    for (const page of [about, privacy]) expect(page).toContain('<p class="version">v0.1.0 · ');
+    for (const page of [about, privacy])
+      expect(page).toContain('<span class="version">v0.1.0 · 3ee85ea</span> · <a href=');
   });
 });
