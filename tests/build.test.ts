@@ -78,6 +78,8 @@ describe("buildApi + buildSite", () => {
       "index.html",
       "about/index.html",
       "privacy/index.html",
+      "version.json",
+      "version/index.html",
       "assets/logo.svg",
       "favicon.ico",
       "assets/icon-180.png",
@@ -94,7 +96,7 @@ describe("buildApi + buildSite", () => {
     expect(index).not.toContain("fonts.googleapis.com");
     expect(index).toContain('url("assets/fonts/manrope.ttf")');
     expect(index).toContain('class="sum"'); // teaser line under each headline
-    expect(index).toContain('<p><span class="version">v0.1.0 · 3ee85ea</span> · <a href="about/"');
+    expect(index).toContain('<p><span class="version">v0.1.0</span> · <a href="about/"');
     expect(index).toContain('<link rel="canonical" href="https://swedlines.com/">');
     expect(index).toContain('content="https://swedlines.com/assets/og.png"');
     const about = await readFile(join(publicDir, "about", "index.html"), "utf8");
@@ -108,6 +110,17 @@ describe("buildApi + buildSite", () => {
     expect(privacy).toContain("What we do not collect");
     expect(privacy).toContain("Vad vi inte samlar in");
     for (const page of [about, privacy])
-      expect(page).toContain('<span class="version">v0.1.0 · 3ee85ea</span> · <a href=');
+      expect(page).toContain('<span class="version">v0.1.0</span> · <a href=');
+
+    const version = JSON.parse(await readFile(join(publicDir, "version.json"), "utf8")) as Record<
+      string,
+      unknown
+    >;
+    expect(version.version).toBe("0.1.0");
+    expect(version.commit).toBe("3ee85ea0123456789");
+    expect(typeof version.built_at).toBe("string");
+    const versionPage = await readFile(join(publicDir, "version", "index.html"), "utf8");
+    expect(versionPage).toContain("<code>0.1.0</code>");
+    expect(versionPage).toContain("<code>3ee85ea0123456789</code>");
   });
 });

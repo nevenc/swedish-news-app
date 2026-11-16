@@ -30,13 +30,55 @@ export function renderPublishers(config: SourcesConfig, locale: "en" | "sv"): st
   return `<ul class="pubs">\n${items.join("\n")}\n</ul>`;
 }
 
-/** Footer version, placed before the About link: package version plus the short commit when known; empty when no version is given. */
+/** Footer version, placed before the About link: the package version only; empty when none is given. */
 export function renderVersion(
   v: { version: string; commit?: string | undefined } | undefined,
 ): string {
   if (!v) return "";
-  const commit = v.commit ? ` · ${esc(v.commit.slice(0, 7))}` : "";
-  return `<span class="version">v${esc(v.version)}${commit}</span> · `;
+  return `<span class="version">v${esc(v.version)}</span> · `;
+}
+
+/** Minimal plain page for /version: version, full commit and build time, with a link to version.json. */
+export function renderVersionPage(info: {
+  version: string;
+  commit: string | null;
+  built_at: string;
+}): string {
+  const rows: [string, string][] = [
+    ["Version", info.version],
+    ["Commit", info.commit ?? "unknown"],
+    ["Built", info.built_at],
+  ];
+  return `<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<title>Swedlines version</title>
+<style>
+  body { margin: 0; padding: 32px 16px; font-family: "Helvetica Neue", Arial, sans-serif; color: #15202b; background: #f7f8fa; }
+  @media (prefers-color-scheme: dark) { body { color: #e8edf2; background: #0b1218; } }
+  main { max-width: 640px; margin: 0 auto; }
+  h1 { font-size: 18px; margin: 0 0 12px; }
+  dl { display: grid; grid-template-columns: max-content 1fr; gap: 6px 16px; margin: 0; font-variant-numeric: tabular-nums; }
+  dt { font-weight: 700; } dd { margin: 0; word-break: break-all; }
+  code { font-size: 14px; }
+  p { font-size: 14px; margin: 16px 0 0; }
+  a { color: inherit; }
+</style>
+</head>
+<body>
+<main>
+<h1>Swedlines version</h1>
+<dl>
+${rows.map(([k, v]) => `<dt>${esc(k)}</dt><dd><code>${esc(v)}</code></dd>`).join("\n")}
+</dl>
+<p>Machine-readable: <a href="../version.json">version.json</a> · <a href="../">Back to the headlines</a></p>
+</main>
+</body>
+</html>
+`;
 }
 
 /** Copy the stream page, About page and logo assets into the output directory; write CNAME when a domain is set. */
@@ -73,6 +115,24 @@ export async function buildSite(opts: {
   await mkdir(join(opts.publicDir, "privacy"), { recursive: true });
   await writeFile(join(opts.publicDir, "privacy", "index.html"), privacy, "utf8");
   written.push("privacy/index.html");
+
+  // /version (human) and /version.json (machine): what this deployment was built from.
+  if (opts.version) {
+    const info = {
+      version: opts.version.version,
+      commit: opts.version.commit ?? null,
+      built_at: new Date().toISOString(),
+    };
+    await writeFile(
+      join(opts.publicDir, "version.json"),
+      `${JSON.stringify(info, null, 2)}\n`,
+      "utf8",
+    );
+    written.push("version.json");
+    await mkdir(join(opts.publicDir, "version"), { recursive: true });
+    await writeFile(join(opts.publicDir, "version", "index.html"), renderVersionPage(info), "utf8");
+    written.push("version/index.html");
+  }
 
   await mkdir(join(opts.publicDir, "assets"), { recursive: true });
   const logo = join(opts.appRoot, "assets", "logo");
