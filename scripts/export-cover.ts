@@ -2,6 +2,7 @@
  * Social images, rendered at 1x and 2x. Run: npm run cover
  *   assets/social/ko-fi-cover-1200x400.png  Ko-fi page cover (3:1)
  *   assets/social/og-1200x630.png           Open Graph preview, copied to the site as assets/og.png
+ *   assets/social/og-sv-1200x630.png        Swedish version, copied to the site as assets/og-sv.png (About page)
  *
  * Text is converted to outlines from the bundled Manrope variable font (assets/fonts/manrope,
  * SIL OFL) with fontkit, so the render is identical on every machine and needs no installed fonts.
@@ -92,8 +93,20 @@ await mkdir(outDir, { recursive: true });
   await renderPng(svg, W, H, "ko-fi-cover", outDir);
 }
 
-// 2. Open Graph / social preview, 1200x630 (copied to the site as assets/og.png)
-{
+// 2. Open Graph / social preview, 1200x630, English (site assets/og.png) and Swedish (assets/og-sv.png, About page)
+const OG_COPY = {
+  og: {
+    h1: "Swedish news.",
+    h2: "In English and Swedish.",
+    lede: "Headlines from leading Swedish publishers, together in one place.",
+  },
+  "og-sv": {
+    h1: "Svenska nyheter.",
+    h2: "På engelska och svenska.",
+    lede: "Rubriker från ledande svenska publicister, samlade på ett ställe.",
+  },
+};
+for (const [base, copy] of Object.entries(OG_COPY)) {
   const W = 1200;
   const H = 630;
   const svg = `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${H}" width="${W * 2}" height="${H * 2}">
@@ -101,11 +114,11 @@ await mkdir(outDir, { recursive: true });
   ${stream(960, 40, 18)}
   ${bars(100, 96, 0.7)}
   ${outlines("swedlines", { x: 270, y: 180, size: 84, wght: 800, tracking: -3, fill: "#fff" })}
-  ${outlines("Swedish news.", { x: 100, y: 330, size: 64, wght: 800, tracking: -2, fill: "#fff" })}
-  ${outlines("In English and Swedish.", { x: 100, y: 404, size: 64, wght: 800, tracking: -2, fill: YELLOW })}
-  ${outlines("Headlines from leading Swedish publishers, together in one place.", { x: 100, y: 470, size: 28, wght: 600, fill: "#fff", opacity: 0.85 })}
+  ${outlines(copy.h1, { x: 100, y: 330, size: 64, wght: 800, tracking: -2, fill: "#fff" })}
+  ${outlines(copy.h2, { x: 100, y: 404, size: 64, wght: 800, tracking: -2, fill: YELLOW })}
+  ${outlines(copy.lede, { x: 100, y: 470, size: 28, wght: 600, fill: "#fff", opacity: 0.85 })}
   ${outlines("swedlines.com", { x: 100, y: 548, size: 26, wght: 600, fill: "#fff", opacity: 0.7 })}
   <rect x="0" y="${H - 10}" width="${W}" height="10" fill="${YELLOW}"/>
 </svg>`;
-  await renderPng(svg, W, H, "og", outDir);
+  await renderPng(svg, W, H, base, outDir);
 }

@@ -144,6 +144,7 @@ export async function buildSite(opts: {
     [join(logo, "png", "mark-192.png"), "assets/icon-192.png"],
     [join(logo, "png", "mark-512.png"), "assets/icon-512.png"],
     [join(opts.appRoot, "assets", "social", "og-1200x630.png"), "assets/og.png"],
+    [join(opts.appRoot, "assets", "social", "og-sv-1200x630.png"), "assets/og-sv.png"],
     // Self-hosted typeface (SIL OFL; licence shipped alongside), so no font service is contacted.
     [
       join(opts.appRoot, "assets", "fonts", "manrope", "Manrope[wght].ttf"),

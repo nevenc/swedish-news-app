@@ -86,6 +86,7 @@ describe("buildApi + buildSite", () => {
       "assets/icon-192.png",
       "assets/icon-512.png",
       "assets/og.png",
+      "assets/og-sv.png",
       "assets/fonts/manrope.ttf",
       "assets/fonts/OFL.txt",
     ]);
@@ -101,6 +102,7 @@ describe("buildApi + buildSite", () => {
     expect(index).toContain('content="https://swedlines.com/assets/og.png"');
     const about = await readFile(join(publicDir, "about", "index.html"), "utf8");
     expect(about).toContain('<img class="hero" src="../assets/og.png"');
+    expect(about).toContain('<img class="hero" src="../assets/og-sv.png"');
     expect(about).not.toContain("<!--PUBLISHERS");
     for (const s of config.sources.filter((x) => x.enabled)) expect(about).toContain(s.name);
     expect(about).toContain('href="https://ko-fi.com/swedlines"');
