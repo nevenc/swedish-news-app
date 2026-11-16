@@ -11,8 +11,8 @@ See [SPEC.md](SPEC.md) for the full specification and [sources.yaml](sources.yam
 Requires Node 24 or newer and git.
 
 ```
-git clone git@github.com:nevenc/swedish-news-app.git
-cd swedish-news-app
+git clone git@github.com:nevenc/swedlines-app.git
+cd swedlines-app
 npm install
 git clone git@github.com:nevenc/swedlines-content.git content-repo   # the data repo, gitignored here
 

@@ -1,7 +1,7 @@
 # Swedlines — Specification
 
 **Status:** Draft v0.5 (2026-11-14) — sources verified, headline-stream UI and ticker added, domain swedlines.com
-**Name:** Swedlines — https://swedlines.com (repo: `swedish-news-app`)
+**Name:** Swedlines — https://swedlines.com (repo: `swedlines-app`)
 
 ## 1. Purpose
 
@@ -110,7 +110,7 @@ Sources are configured in `sources.yaml` (one entry per publisher, one or more f
 
 | Repo | Contents | Commit cadence |
 |---|---|---|
-| `swedish-news-app` (this repo) | pipeline code, API/feed builders, optional UI, tests, this spec | on development |
+| `swedlines-app` (this repo) | pipeline code, API/feed builders, optional UI, tests, this spec | on development |
 | `swedish-news-content` | `sources.yaml` snapshot, `content/` item files, generated `docs/` | every pipeline run with new items (up to every 15 min) |
 
 Keeping data in a separate repo prevents thousands of data commits from swamping the code history, and lets the content repo be published via GitHub Pages independently. (Alternative: an orphan `data` branch in this repo. See Open decisions.)
