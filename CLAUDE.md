@@ -23,6 +23,14 @@ npm run cli -- sources --check
 npm run build              # emit dist/ (production only; dev runs TS natively)
 ```
 
+## Releases
+
+Every change pushed to `main` is a release: the site footer and `/version` show `package.json`'s version, so bump it in the same commit as the change (or in the final commit of a batch).
+
+- `npm version patch --no-git-tag-version` for fixes, copy and styling; `npm version minor --no-git-tag-version` for new features or pages; `major` only for breaking changes to the public API/feeds.
+- Tag the release commit `vX.Y.Z` and push the tag together with `main` (`git push origin main vX.Y.Z`).
+- Never push to `main` with the version unchanged from the previous release.
+
 ## Toolchain notes
 
 - Node 24+ runs TypeScript natively, so `src/cli.ts` executes without a build step. This requires `erasableSyntaxOnly`: no `enum`, no parameter properties, no namespaces. Relative imports use explicit `.ts` extensions.
