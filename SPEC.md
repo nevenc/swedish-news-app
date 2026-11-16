@@ -287,7 +287,7 @@ Reference: NewsNow's Sweden page (newsnow.co.uk/h/World+News/Europe/Northern+Eur
 
 ### Shape
 
-- **One page, one list.** Each row: headline (link), publisher name, relative time ("12 min", "3 h"). No images, no snippets by default. A row can expand to show the teaser.
+- **One page, one list.** Each row: headline (link), publisher name, relative time ("12 min", "3 h"), and the publisher's teaser beneath in muted type (`sv.summary`, or `en.summary` in English view; decided 2026-11-16). No images. Rows without a teaser show the headline only.
 - **Language toggle** in the header: `sv` / `en` / `both`. Persisted in `localStorage`. "Both" shows the English headline with the Swedish original beneath in smaller type.
 - **Time-window grouping** in the Latest view: "Senaste 10 minuterna / Last 10 minutes", "Senaste timmen", "Senaste 4 timmarna", "Tidigare i dag", then by day.
 - **Tabs:** `Latest` (reverse chronological, MVP) and `Top` (phase 2, see below). No "Popular" tab until there is click data worth ranking on.
@@ -370,5 +370,5 @@ These change the implementation materially and need an owner's call before Miles
 5. **Source list.** Resolved 2026-11-14: ten verified sources in §3 and `sources.yaml`; Omni (no feed) and The Local (English) excluded. Confirm whether Di belongs in a general-news feed.
 6. **Extract length.** 300-character target is conservative. Confirm you are comfortable with that given the press-publisher-right constraints in §3.
 7. **Hosting.** Resolved 2026-11-14: GitHub Pages behind the custom domain `swedlines.com` (§9). Cloudflare in front is optional and can be added later for caching and analytics without changing the build.
-8. **Web UI.** Resolved 2026-11-14: a NewsNow-style headline stream is in the MVP (§8). Open sub-question: should rows show the teaser by default or only on expand?
+8. **Web UI.** Resolved 2026-11-14: a NewsNow-style headline stream is in the MVP (§8). Teaser shown by default under every headline (resolved 2026-11-16).
 9. **Data licence for API consumers.** Titles and teasers remain the publishers' copyright; our translations and metadata could be CC BY 4.0. Needs a decision and a `LICENSE-DATA` file.

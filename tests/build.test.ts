@@ -88,6 +88,7 @@ describe("buildApi + buildSite", () => {
     expect(index).toContain("api/v1/latest.json");
     expect(index).not.toContain("fonts.googleapis.com");
     expect(index).toContain('url("assets/fonts/manrope.ttf")');
+    expect(index).toContain('class="sum"'); // teaser line under each headline
     expect(index).toContain('<link rel="canonical" href="https://swedlines.com/">');
     expect(index).toContain('content="https://swedlines.com/assets/og.png"');
     const about = await readFile(join(publicDir, "about", "index.html"), "utf8");
