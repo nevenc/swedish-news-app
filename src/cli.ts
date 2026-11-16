@@ -1,3 +1,4 @@
+import { execFileSync } from "node:child_process";
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join } from "node:path";
 import { parseArgs } from "node:util";
@@ -251,6 +252,25 @@ async function translateImportCommand(args: string[]): Promise<number> {
   return 0;
 }
 
+/** package.json version plus the current commit of this checkout (GITHUB_SHA in Actions, git otherwise). */
+async function appVersion(): Promise<{ version: string; commit?: string | undefined }> {
+  const pkg = JSON.parse(await readFile(join(process.cwd(), "package.json"), "utf8")) as {
+    version: string;
+  };
+  let commit = process.env.GITHUB_SHA;
+  if (!commit) {
+    try {
+      commit = execFileSync("git", ["rev-parse", "HEAD"], {
+        encoding: "utf8",
+        stdio: ["ignore", "pipe", "ignore"],
+      }).trim();
+    } catch {
+      commit = undefined;
+    }
+  }
+  return { version: pkg.version, commit: commit || undefined };
+}
+
 async function buildCommand(args: string[]): Promise<number> {
   const { values } = parseArgs({
     args,
@@ -269,6 +289,7 @@ async function buildCommand(args: string[]): Promise<number> {
     appRoot: process.cwd(),
     domain: values.domain,
     config,
+    version: await appVersion(),
   });
   console.log(
     `built ${api.files} API files (${api.articles} articles, ${api.days} days) + ${site.join(", ")}`,

@@ -30,23 +30,39 @@ export function renderPublishers(config: SourcesConfig, locale: "en" | "sv"): st
   return `<ul class="pubs">\n${items.join("\n")}\n</ul>`;
 }
 
+const REPO = "https://github.com/nevenc/swedish-news-app";
+
+/** Footer version line: package version plus the short commit (linked) when known; empty when no version is given. */
+export function renderVersion(
+  v: { version: string; commit?: string | undefined } | undefined,
+): string {
+  if (!v) return "";
+  const commit = v.commit
+    ? ` · <a href="${REPO}/commit/${esc(v.commit)}" rel="noopener">${esc(v.commit.slice(0, 7))}</a>`
+    : "";
+  return `<p class="version">v${esc(v.version)}${commit}</p>`;
+}
+
 /** Copy the stream page, About page and logo assets into the output directory; write CNAME when a domain is set. */
 export async function buildSite(opts: {
   publicDir: string;
   appRoot: string;
   domain?: string | undefined;
   config?: SourcesConfig | undefined;
+  /** Shown in every footer, e.g. { version: "0.1.0", commit: "3ee85ea" }. */
+  version?: { version: string; commit?: string | undefined } | undefined;
 }): Promise<string[]> {
   const written: string[] = [];
+  const stamp = (html: string) => html.replace("<!--VERSION-->", renderVersion(opts.version));
   if (opts.domain) {
     await writeFile(join(opts.publicDir, "CNAME"), `${opts.domain}\n`, "utf8");
     written.push("CNAME");
   }
-  const index = await readFile(join(here, "templates", "index.html"), "utf8");
+  const index = stamp(await readFile(join(here, "templates", "index.html"), "utf8"));
   await writeFile(join(opts.publicDir, "index.html"), index, "utf8");
   written.push("index.html");
 
-  let about = await readFile(join(here, "templates", "about.html"), "utf8");
+  let about = stamp(await readFile(join(here, "templates", "about.html"), "utf8"));
   for (const locale of ["en", "sv"] as const) {
     const list = opts.config
       ? renderPublishers(opts.config, locale)
@@ -57,7 +73,7 @@ export async function buildSite(opts: {
   await writeFile(join(opts.publicDir, "about", "index.html"), about, "utf8");
   written.push("about/index.html");
 
-  const privacy = await readFile(join(here, "templates", "privacy.html"), "utf8");
+  const privacy = stamp(await readFile(join(here, "templates", "privacy.html"), "utf8"));
   await mkdir(join(opts.publicDir, "privacy"), { recursive: true });
   await writeFile(join(opts.publicDir, "privacy", "index.html"), privacy, "utf8");
   written.push("privacy/index.html");
